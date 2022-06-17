@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import MinValueValidator, RegexValidator
-from django.utils.timezone import now
 
 
 class Profile(models.Model):
@@ -17,7 +16,7 @@ class Profile(models.Model):
     role = models.CharField(max_length=30, choices=ROLES, default='TR', verbose_name='Role')
 
 
-class ProductCategories(models.Model):
+class ProductCategory(models.Model):
     """Categories of products"""
     category_name = models.CharField(max_length=50, verbose_name='Category name')
 
@@ -30,7 +29,7 @@ class Product(models.Model):
     product_name = models.CharField(max_length=50, verbose_name='Product name')
     product_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)],
                                         verbose_name='Product price')
-    product_category = models.ForeignKey(to=ProductCategories, on_delete=models.SET_NULL, null=True,
+    product_category = models.ForeignKey(to=ProductCategory, on_delete=models.SET_NULL, null=True,
                                          verbose_name='Product category if exists')
     product_removed_category = models.BooleanField(default=False,
                                                    verbose_name='Product category if not exist (deleted)')
@@ -144,3 +143,4 @@ class OrderedProduct(models.Model):
 class Invoice(models.Model):
     """Invoice generated file for the order"""
     invoice_number = models.IntegerField(verbose_name='Invoice number')
+    order_FK = models.ForeignKey(to=Order, on_delete=models.CASCADE, verbose_name='Order referred')

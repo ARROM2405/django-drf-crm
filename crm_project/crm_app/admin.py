@@ -1,3 +1,12 @@
 from django.contrib import admin
+from .models import *
 
-# Register your models here.
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    fields = ['user', 'role']
+
+
+@admin.register(ProductCategory)
+class ProductCategories(admin.ModelAdmin):
+    pass
