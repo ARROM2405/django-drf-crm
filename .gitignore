@@ -128,5 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# passwords holder
-crm_project/.env
+# test file
+me_trying_staff.py
