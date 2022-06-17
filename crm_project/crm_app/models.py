@@ -143,4 +143,4 @@ class OrderedProduct(models.Model):
 
 class Invoice(models.Model):
     """Invoice generated file for the order"""
-    pass
+    invoice_number = models.IntegerField(verbose_name='Invoice number')
