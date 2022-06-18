@@ -46,9 +46,9 @@ class Web(models.Model):
     """Web is the provider of the leads"""
     web_name = models.CharField(max_length=30, verbose_name='Name of a web')
     web_description = models.TextField(blank=True, null=True, verbose_name='Description of a web')
-    web_api_id = models.IntegerField(validators=[MinValueValidator(0)], verbose_name='ID for API')
+    web_api_id = models.AutoField(primary_key=True, verbose_name='ID for API')
     web_api_key = models.CharField(max_length=24, verbose_name='Key for API')
-    balance = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Balance of a web')
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Balance of a web')
 
     def __str__(self):
         return f'{self.web_name}'
@@ -123,7 +123,7 @@ class Order(models.Model):
     customer_first_name = models.CharField(max_length=25, verbose_name='Customer first name')
     customer_last_name = models.CharField(max_length=25, blank=True, null=True, verbose_name='Customer last name')
     status = models.CharField(max_length=30, choices=ORDER_STATUSES, default='NO', verbose_name='Order Status')
-    sent_date = models.DateField(auto_now_add=True, verbose_name='Send date for the order')
+    sent_date = models.DateField(verbose_name='Send date for the order')
     order_operator = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True, verbose_name='Operator FK')
     order_operator_login = models.CharField(max_length=30, verbose_name='Operator login')
 
@@ -142,5 +142,5 @@ class OrderedProduct(models.Model):
 
 class Invoice(models.Model):
     """Invoice generated file for the order"""
-    invoice_number = models.IntegerField(verbose_name='Invoice number')
+    invoice_number = models.AutoField(primary_key=True, verbose_name='Invoice number')
     order_FK = models.ForeignKey(to=Order, on_delete=models.CASCADE, verbose_name='Order referred')
