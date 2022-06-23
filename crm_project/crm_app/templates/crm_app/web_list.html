@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web list</title>
+</head>
+<body>
+{% if webs %}
+<ul>
+    {% for web in webs %}
+    <li><a href="{% url 'web_detail' web.pk %}">{{ web.web_name }}</a></li>
+    {% endfor %}
+</ul>
+{% else %}
+<h3>No webs added yet.</h3>
+{% endif %}
+</body>
+</html>

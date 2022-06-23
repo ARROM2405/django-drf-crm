@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lead {{ object.id }}</title>
+</head>
+<body>
+<h1>Lead ID: {{object.id}}</h1>
+<h3>Status: {{ object.status }}</h3>
+<h3>Creation date and time: {{ object.created_at }}</h3>
+<h3>Contact phone: {{ object.contact_phone }}</h3>
+<h3>Customer first name: {{ object.first_name }}</h3>
+<h3>Customer last name: {{ object.customer_last_name }}</h3>
+<h3>Product:
+    {% if object.product_FK %}
+        <a href="{% url 'product_detail' object.product_FK.id %}">{{ object.product_FK.name }}</a>
+    {% else %}
+        {{ object.product_name }} (deleted)
+    {% endif %}
+</h3>
+<h3>Web:
+    {% if object.web_FK %}
+        <a href="{% url 'web_detail' object.web_FK.id %}">{{ object.web_FK.name }}</a>
+    {% else %}
+        {{ object.web_name }} (deleted)
+    {% endif %}
+</h3>
+<h3>Lead cost: {{ object.lead_cost }}</h3>
+</body>
+</html>

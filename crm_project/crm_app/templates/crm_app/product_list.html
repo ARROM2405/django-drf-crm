@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product list</title>
+</head>
+<body>
+<h1>List of products</h1>
+{% if object_list %}
+<table border="solid black">
+    <tr>
+        <th>Product name</th>
+        <th>Product image</th>
+        <th>Quantity available</th>
+        <th>Product category</th>
+    </tr>
+    {% for product in object_list %}
+    <tr>
+        <td><a href="{% url 'product_detail' product.pk %}">{{ product.product_name }}</a></td>
+        <td>HERE HAS TO BE IMAGE!!!</td>
+        <td>{{ product.quantity_available }}</td>
+        <td><a href="{% url 'product_category_detail' product.product_category.product_category_id %}">
+            {{ product.product_category.category_name }}
+        </a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<h3>No products yet</h3>
+{% endif %}
+</body>
+</html>

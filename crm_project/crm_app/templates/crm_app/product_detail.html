@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ object.product_name }}</title>
+</head>
+<body>
+<h1>{{ object.product_name }}</h1>
+<h3>ID: {{ object.product_id }}</h3>
+<h3>Description</h3>
+<p>{{ object.product_description }}</p>
+<h3>Price: {{ object.product_price }}</h3>
+<h3>Quantity available: {{ object.quantity_available }}</h3>
+<h3>Category: <a href="{% url 'product_category_detail' object.product_category.pk %}">
+    {{ object.product_category.category_name }}
+</a></h3>
+</body>
+</html>

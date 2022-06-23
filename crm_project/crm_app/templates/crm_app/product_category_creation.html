@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product category creation</title>
+</head>
+<body>
+<h1>Product category creation form</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">New product category</button>
+</form>
+</body>
+</html>

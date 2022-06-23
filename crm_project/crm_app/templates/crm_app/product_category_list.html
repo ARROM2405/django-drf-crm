@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Category List</title>
+</head>
+<body>
+<h1>List of product categories</h1>
+{% if object_list %}
+    <table border="solid black">
+        <tr>
+            <th>Category name</th>
+            <th>Products number in category</th>
+        </tr>
+        {% for category in object_list %}
+        <tr>
+            <td><a href="{% url 'product_category_detail' category.pk %}">{{ category.category_name }}</a></td>
+            <td>{{ category.product.count }}</td>
+
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h3>No categories yet.</h3>
+{% endif %}
+</body>
+</html>

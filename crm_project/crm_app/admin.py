@@ -48,3 +48,9 @@ class OrderedProductAdmin(admin.ModelAdmin):
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     fields = ['order_FK']
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    fields = ['product_name', 'product_price', 'product_category', 'product_description', 'product_image',
+                  'quantity_available']
