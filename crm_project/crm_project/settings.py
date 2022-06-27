@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ro^)snac5g_+&wix3z^n-_c0$4xzl0*wr3*qg$er=ba=f=g^rj'
+SECRET_KEY = os.environ.get('django_secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -80,8 +82,6 @@ WSGI_APPLICATION = 'crm_project.wsgi.application'
 #     }
 # }
 
-
-load_dotenv()
 
 DB_USER = os.environ.get('db_username')
 DB_PASSWORD = os.environ.get('db_password')
