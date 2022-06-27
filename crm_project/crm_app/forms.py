@@ -6,7 +6,6 @@ from .models import *
 
 
 class RegistrationForm(UserCreationForm):
-
     class Meta:
         model = User
         fields = ('username', 'password1', 'password2')
@@ -29,8 +28,7 @@ class LeadCreationForm(ModelForm):
 
     class Meta:
         model = Lead
-        fields = ['offer_FK', 'contact_phone', 'customer_first_name', 'customer_last_name', 'product_FK',
-                  'web_FK']
+        fields = ['offer_FK', 'contact_phone', 'customer_first_name', 'customer_last_name']
 
 
 class ProductCategoryCreationForm(ModelForm):
@@ -44,8 +42,19 @@ class ProductCreationForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['product_category'].label = 'Product category'
 
-
     class Meta:
         model = Product
         fields = ['product_name', 'product_price', 'product_category', 'product_description', 'product_image',
                   'quantity_available']
+
+
+class OfferCreationForm(ModelForm):
+    class Meta:
+        model = Offer
+        fields = ['web', 'product', 'click_cost', 'website_url']
+
+
+class PaymentCreationForm(ModelForm):
+    class Meta:
+        model = PaymentsToWeb
+        fields = ['web_FK', 'payment_amount']

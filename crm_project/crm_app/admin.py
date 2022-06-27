@@ -25,19 +25,19 @@ class OfferAdmin(admin.ModelAdmin):
 @admin.register(Lead)
 class LeadAdmin(admin.ModelAdmin):
     fields = ['status', 'processed_at', 'offer_FK', 'offer_removed', 'contact_phone',
-              'customer_first_name', 'customer_last_name', 'product_FK', 'product_name', 'web_FK',
-              'web_name', 'lead_cost']
+              'customer_first_name', 'customer_last_name', 'lead_cost']
 
 
 @admin.register(PaymentsToWeb)
 class PaymentsToWebAdmin(admin.ModelAdmin):
-    fields = ['web_FK', 'web_name', 'payment_amount']
+    fields = ['web_FK', 'payment_amount', 'user_added']
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     fields = ['lead_FK', 'customer_first_name', 'customer_last_name', 'status', 'sent_date',
-              'order_operator', 'order_operator_login']
+              'delivery_city', 'delivery_street', 'delivery_house_number', 'delivery_apartment_number',
+              'delivery_zip_code', 'order_operator']
 
 
 @admin.register(OrderedProduct)
@@ -53,4 +53,4 @@ class InvoiceAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     fields = ['product_name', 'product_price', 'product_category', 'product_description', 'product_image',
-                  'quantity_available']
+              'quantity_available']

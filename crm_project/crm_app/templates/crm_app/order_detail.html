@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order {{object.pk}}</title>
+</head>
+<body>
+<h1>Order ID: {{ object.pk }}</h1>
+<h3>Status: {{ object.status }}</h3>
+<h3>Lead: <a href="{% url 'lead_detail' object.lead_FK.pk %}"> {{ object.lead_FK }}</a></h3>
+<h3>Customer: {{ object.customer_first_name }}, {{ object.customer_last_name }}</h3>
+<h3>Send date:
+    {% if object.sent_date %}
+    {{ object.sent_date }}
+    {% else %}
+    No info
+    {% endif %}
+</h3>
+<h2>Delivery address:</h2>
+<h3>City: {{ object.delivery_city }}</h3>
+<h3>Street: {{ object.delivery_street }}</h3>
+{% if object.delivery_house_number %}
+<h3>House number: {{ object.delivery_house_number }}</h3>
+{% endif %}
+{% if delivery.apartment_number %}
+<h3>Apartment: {{ object.delivery_apartment_number }}</h3>
+{% endif %}
+<h3>Zip code: {{ object.delivery_zip_code }}</h3>
+<h3>Operator: {{ object.order_operator }}</h3>
+</body>
+</html>

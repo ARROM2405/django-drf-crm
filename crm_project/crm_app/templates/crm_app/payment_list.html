@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment list</title>
+</head>
+<body>
+<h1>Payments</h1>
+{% if object_list %}
+<table border="black solid">
+    <tr>
+        <td>Payment date</td>
+        <td>Web</td>
+        <td>Amount paid</td>
+    </tr>
+    {% for payment in object_list %}
+    <tr>
+        <td>{{ payment.payment_date }}</td>
+        <td><a href="{% url 'web_detail' payment.web_FK.pk %}">{{ payment.web_FK }}</a></td>
+        <td><a href="{% url 'payment_detail' payment.pk %}">{{ payment.payment_amount }}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<h3>No payments executed yet</h3>
+{% endif %}
+</body>
+</html>

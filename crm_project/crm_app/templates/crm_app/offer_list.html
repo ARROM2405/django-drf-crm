@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Offer list</title>
+</head>
+<body>
+<h1>Offer list</h1>
+{% if object_list %}
+<table border="solid black">
+    <tr>
+        <th>Offer ID</th>
+        <th>Web</th>
+        <th>Product</th>
+        <th>Click cost</th>
+    </tr>
+    {% for offer in object_list %}
+    <tr>
+        <td><a href="{% url 'offer_detail' offer.pk %}">{{ offer.pk }}</a></td>
+        <td><a href="{% url 'web_detail' offer.web.pk %}">{{ offer.web.web_name }}</a></td>
+        <td><a href="{% url 'product_detail' offer.product.pk %}">{{ offer.product.product_name }}</a></td>
+        <td>{{ offer.click_cost }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<h3>No offers yet</h3>
+{% endif %}
+</body>
+</html>

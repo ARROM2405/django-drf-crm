@@ -5,6 +5,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
+from django.db import transaction
 
 from .forms import *
 from .models import *
@@ -19,10 +20,13 @@ class RegisterView(generic.View):
     def post(self, request, form=form):
         form = form(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
-            print(username, raw_password)
+            Profile.objects.create(
+                user=user,
+                role='Test role',
+            )
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             return redirect('home_page')
@@ -46,59 +50,56 @@ class UserLogoutView(LogoutView):
     next_page = 'login'
 
 
-class LeadCreationView(generic.View):
-    def get(self, request):
-        form = LeadCreationForm()
-        return render(request, 'crm_app/lead_creation.html', {'form': form})
+class LeadCreationView(generic.CreateView):
+    model = Lead
+    form_class = LeadCreationForm
+    template_name = 'crm_app/lead_creation.html'
 
-    def post(self, request):
-        form = LeadCreationForm(request.POST)
-        if form.is_valid():
-            form_data = form.cleaned_data
-            product_name = Product.objects.get(pk=form_data.get('product_FK')).values('product_name')
-            web_name = Web.objects.get(pk=form_data.get('web_FK')).values('web_name')
-            lead_cost = Offer.objects.get(product=form_data.get('product_FK'),
-                                          web=form_data.get('web_FK')).values('click_cost')
-            new_lead = Lead.objects.create(
-                offer_FK=form_data.get('offer_fk'),
-                contact_phone=form_data.get('contact_phone'),
-                customer_first_name=form_data.get('customer_first_name'),
-                customer_last_name=form_data.get('customer_last_name'),
-                product_FK=form_data.get('product_FK'),
-                product_name=product_name,
-                web_FK=form_data.get('web_FK'),
-                web_name=web_name,
-                lead_cost=lead_cost
-            )
-            return redirect(reverse('lead_detail', kwargs={'id': new_lead.id}))
-        return render(request, 'crm_app/lead_creation.html', {'form': form})
+    def form_valid(self, form):
+        offer = form.cleaned_data.get('offer_FK')
+        form.instance.lead_cost = offer.click_cost
+        form.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('lead_list')
 
 
 class LeadDetailView(generic.DetailView):
     model = Lead
-    template_name = 'crm_app/lead_detail'
+    template_name = 'crm_app/lead_detail.html'
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
-
-    def get_object(self, queryset=None):
-        return Lead.objects.select_related('order').get(pk=self.kwargs.get('id'))
 
 
 class LeadListView(generic.ListView):
     model = Lead
-    template_name = ''
+    template_name = 'crm_app/lead_list.html'
+
+    def get_queryset(self):
+        return Lead.objects.select_related('offer_FK').all()
 
 
 class LeadToOrderCreationView():
     pass
 
 
-class OrderDetailView():
-    pass
+class OrderDetailView(generic.DetailView):
+    model = Order
+    template_name = 'crm_app/order_detail.html'
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    def get_object(self, queryset=None):
+        return Order.objects.prefetch_related('orderedproduct_set').get(pk=self.kwargs.get('id'))
 
 
-class OrderListView():
-    pass
+class OrderListView(generic.ListView):
+    model = Order
+    template_name = 'crm_app/order_list.html'
+
+    def get_queryset(self):
+        return Order.objects.select_related('order_operator').all()
 
 
 class WebCreationView(generic.CreateView):
@@ -131,16 +132,66 @@ class WebListView(generic.ListView):
         return Web.objects.all().order_by('web_name')
 
 
-class PaymentsCreationView():
-    pass
+class PaymentCreationView(generic.CreateView):
+    model = PaymentsToWeb
+    template_name = 'crm_app/payment_creation.html'
+    form_class = PaymentCreationForm
+    pk_url_kwarg = 'web_id'
+    query_pk_and_slug = True
+
+    def get_success_url(self):
+        return reverse('payment_list')
+    #
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['web'] = Web.objects.get(pk=self.kwargs.get('web_id'))
+    #     return context
+
+    def get_initial(self, **kwargs):
+        initial = super(PaymentCreationView, self).get_initial(**kwargs)
+        initial['web_FK'] = Web.objects.get(pk=self.kwargs.get('web_id'))
+        initial['user_added'] = self.request.user
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        form = PaymentCreationForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            web_to_be_paid = form_data.get('web_FK')
+            payment_amount = form.cleaned_data.get('payment_amount')
+            web_previous_balance = web_to_be_paid.balance
+            web_new_balance = web_previous_balance - payment_amount
+            with transaction.atomic():
+                PaymentsToWeb.objects.create(
+                    web_FK=web_to_be_paid,
+                    payment_amount=payment_amount,
+                    user_added=self.request.user
+                )
+                web_to_be_paid.balance = web_new_balance
+                web_to_be_paid.save()
+                return redirect(reverse('payment_list'))
+        else:
+            form.add_error('__all__', 'Something went wrong. Try again.')
+            return render(request, 'crm_app/payment_creation.html', {'form': form}
+                          )
 
 
-class PaymentsDetailView():
-    pass
+class PaymentDetailView(generic.DetailView):
+    model = PaymentsToWeb
+    template_name = 'crm_app/payment_detail.html'
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    def get_object(self, queryset=None):
+        return PaymentsToWeb.objects.select_related('web_FK').get(pk=self.kwargs.get('id'))
 
 
-class PaymentsListView():
-    pass
+class PaymentListView(generic.ListView):
+    model = PaymentsToWeb
+    template_name = 'crm_app/payment_list.html'
+
+    def get_queryset(self):
+        return PaymentsToWeb.objects.select_related('web_FK').all()
 
 
 class ProductCategoryCreationView(generic.CreateView):
@@ -191,3 +242,45 @@ class ProductListView(generic.ListView):
 
     def get_queryset(self):
         return Product.objects.select_related('product_category').all()
+
+
+class OfferCreationView(generic.CreateView):
+    model = Offer
+    template_name = 'crm_app/offer_creation.html'
+    form_class = OfferCreationForm
+
+    def get_success_url(self):
+        return reverse('offer_detail', kwargs={'id': self.object.pk})
+
+
+class OfferDetailView(generic.DetailView):
+    model = Offer
+    template_name = 'crm_app/offer_detail.html'
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    def get_object(self, queryset=None):
+        return Offer.objects.select_related('web', 'product').get(pk=self.kwargs.get('id'))
+
+
+class OfferListView(generic.ListView):
+    model = Offer
+    template_name = 'crm_app/offer_list.html'
+
+    def get_queryset(self):
+        return Offer.objects.select_related('web', 'product').all()
+
+
+class ProfileDetailView(generic.DetailView):
+    model = Profile
+    template_name = 'crm_app/profile_detail.html'
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    # def get_object(self, queryset=None):
+    #     return Profile.objects.select_related('user').get(self.kwargs.get('id'))
+
+
+class ProfileListView(generic.ListView):
+    model = Profile
+    template_name = 'crm_app/profile_list.html'

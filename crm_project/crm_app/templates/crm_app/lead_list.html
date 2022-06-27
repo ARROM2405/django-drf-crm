@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lead list</title>
+</head>
+<body>
+<h1>Lead list</h1>
+{% if object_list %}
+<table border="black solid">
+    <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Web</th>
+        <th>Product</th>
+        <th>Created at</th>
+        <th>Processed at</th>
+        <th>Operator assigned</th>
+    </tr>
+    {% for lead in object_list %}
+    <tr>
+    <td><a href="{% url 'lead_detail' lead.pk %}">{{ lead.pk }}</a></td>
+    <td>{{ lead.status }}</td>
+    <td><a href="{% url 'web_detail' lead.offer_FK.web.pk %}">{{ lead.offer_FK.web }}</a></td>
+    <td><a href="{% url 'web_detail' lead.offer_FK.product.pk %}">{{ lead.offer_FK.product }}</a></td>
+    <td>{{ lead.created_at }}</td>
+    {% if lead.processed_at %}
+    <td>{{ lead.processed_at }}</td>
+    {% else %}
+    <td>Not processed</td>
+    {% endif %}
+    {% if lead.operator_assigned %}
+    <td>{{lead.operator_assigned}}</td>
+    {% else %}
+    <td>Not assigned</td>
+    {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<h3>No yet leads created</h3>
+{% endif %}
+</body>
+</html>

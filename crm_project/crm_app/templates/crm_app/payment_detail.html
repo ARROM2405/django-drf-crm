@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment {{ object.pk }}</title>
+</head>
+<body>
+<h1>Payment ID: {{ object.pk }}</h1>
+<h3>Paid to: {{ object.web_FK }}</h3>
+<h3>Paid at: {{ object.payment_date }}</h3>
+<h3>Paid amount: {{ object.payment_amount }}</h3>
+<h3>Created by: <a href="{% url 'profile_detail' object.user_added.pk %}">{{ object.user_added }}</a></h3>
+</body>
+</html>

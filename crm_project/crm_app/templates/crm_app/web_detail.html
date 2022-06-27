@@ -5,6 +5,12 @@
     <title>{{object.name}} details</title>
 </head>
 <body>
-<h1>{{object.web_name}} Details</h1>
+<h1>{{object.web_name}}</h1>
+<h3>ID: {{ object.pk }}</h3>
+<h3>API key: {{ object.web_api_key }}</h3>
+<h3>Balance: {{ object.balance }}</h3>
+{% if object.web_description %}
+<p>{{ object.web_description }}</p>
+{% endif %}
 </body>
 </html>

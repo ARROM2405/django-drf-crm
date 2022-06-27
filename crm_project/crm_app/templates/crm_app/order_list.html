@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order list</title>
+</head>
+<body>
+<h1>Order list</h1>
+{% if object_list %}
+    <table border="black solid">
+        <tr>
+            <td>ID</td>
+            <td>Status</td>
+            <td>Order created</td>
+            <td>Sent date</td>
+            <td>Order operator</td>
+        </tr>
+    {% for order in object_list %}
+        <tr>
+            <td><a href="{% url 'order_detail' order.pk %}">{{ order.pk }}</a></td>
+            <td>{{ order.status }}</td>
+            <td>{{ order.order_created }}</td>
+            {% if order.sent_date %}
+            <td>{{ order.sent_date }}</td>
+            {% else %}
+            <td>No data</td>
+            {% endif %}
+            <td>{{ order.order_operator }}</td>
+        </tr>
+    </table>
+    {% endfor %}
+{% else %}
+<h3>No orders created yet</h3>
+{% endif %}
+</body>
+</html>

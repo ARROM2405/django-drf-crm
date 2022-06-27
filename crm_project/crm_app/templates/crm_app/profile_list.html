@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile list</title>
+</head>
+<body>
+<h1>Profile list</h1>
+<table border="black solid">
+    <tr>
+        <th>User login</th>
+        <th>User role</th>
+        <td>Active</td>
+    </tr>
+    {% for profile in object_list %}
+    <tr>
+        <td>
+            <a href="{% url 'profile_detail' profile.pk %}">{{ profile.user.username }}</a>
+
+        </td>
+        <td>{{ profile.role }}</td>
+        <td>
+            {% if profile.blocked %}
+            No
+            {% else %}
+            Yes
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
