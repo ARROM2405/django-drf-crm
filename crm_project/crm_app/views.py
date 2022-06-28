@@ -13,7 +13,7 @@ from .models import *
 MENU_ALL = [
     {'title': 'Main', 'url_address': 'home_page'},
     {'title': 'Product categories', 'url_address': 'product_category_list'},
-    {'title': 'Products', 'url_address': 'products_list'}
+    {'title': 'Products', 'url_address': 'product_list'}
 ]
 
 MENU_OPERATORS = [
@@ -31,6 +31,20 @@ MENU_PAYMENTS_EXECUTIVE = [
 MENU_ADMIN = [
     {'title': 'Users', 'url_address': 'profile_list'}
 ]
+
+
+def add_menu_to_context(context: dict, user_role: str, selected_menu: str) -> dict:
+    page_menu = []
+    page_menu.extend(MENU_ALL)
+    if user_role in ['Operator', 'Administrator']:
+        page_menu.extend(MENU_OPERATORS)
+    if user_role in ['Payments executive', 'Administrator']:
+        page_menu.extend(MENU_PAYMENTS_EXECUTIVE)
+    if user_role == 'Administrator':
+        page_menu.extend(MENU_ADMIN)
+    context['menu'] = page_menu
+    context['selected_menu'] = selected_menu
+    return context
 
 
 class RegisterView(generic.View):
@@ -65,7 +79,8 @@ class UserLoginView(LoginView):
 
 class HomePageView(mixins.LoginRequiredMixin, generic.View):
     def get(self, request):
-        return render(request, 'crm_app/home_page.html')
+        context = add_menu_to_context(context=dict(), user_role=self.request.user.profile.role, selected_menu='Main')
+        return render(request, 'crm_app/home_page.html', context=context)
 
 
 class UserLogoutView(LogoutView):
@@ -105,6 +120,11 @@ class LeadListView(mixins.PermissionRequiredMixin, generic.ListView):
     def get_queryset(self):
         return Lead.objects.select_related('offer_FK').all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Leads')
+        return context
+
 
 class LeadToOrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     pass
@@ -122,12 +142,17 @@ class OrderDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
 
 
 class OrderListView(mixins.PermissionRequiredMixin, generic.ListView):
-    permission_required = 'order.view_order'
+    permission_required = 'crm_app.view_order'
     model = Order
     template_name = 'crm_app/order_list.html'
 
     def get_queryset(self):
         return Order.objects.select_related('order_operator').all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Orders')
+        return context
 
 
 class WebCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
@@ -161,6 +186,11 @@ class WebListView(mixins.PermissionRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return Web.objects.all().order_by('web_name')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Webs')
+        return context
 
 
 class PaymentCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
@@ -228,6 +258,11 @@ class PaymentListView(mixins.PermissionRequiredMixin, generic.ListView):
     def get_queryset(self):
         return PaymentsToWeb.objects.select_related('web_FK').all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Payments')
+        return context
+
 
 class ProductCategoryCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     permission_required = 'crm_app.add_productcategory'
@@ -245,6 +280,12 @@ class ProductCategoryListView(mixins.PermissionRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return ProductCategory.objects.prefetch_related('product_set').all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        add_menu_to_context(context=context, user_role=self.request.user.profile.role,
+                            selected_menu='Product categories')
+        return context
 
 
 class ProductCategoryDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
@@ -284,6 +325,11 @@ class ProductListView(mixins.PermissionRequiredMixin, generic.ListView):
     def get_queryset(self):
         return Product.objects.select_related('product_category').all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Products')
+        return context
+
 
 class OfferCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     permission_required = 'crm_app.add_offer'
@@ -314,6 +360,11 @@ class OfferListView(mixins.PermissionRequiredMixin, generic.ListView):
     def get_queryset(self):
         return Offer.objects.select_related('web', 'product').all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Offers')
+        return context
+
 
 class ProfileDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     permission_required = 'crm_app.view_profile'
@@ -330,3 +381,8 @@ class ProfileListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_profile'
     model = Profile
     template_name = 'crm_app/profile_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Users')
+        return context

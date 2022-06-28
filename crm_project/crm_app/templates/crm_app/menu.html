@@ -1,5 +1,22 @@
-{% block menu %}
-
+{% block top_menu %}
 <div>
-    Operator {{ request.user.username }}
+    <div>
+        Welcome {{request.user.username}}, {{request.user.profile.role}}
+    </div>
+    <div><a href="{% url 'logout' %}">Logout</a></div>
 </div>
+{% endblock %}
+
+{% block side_menu %}
+{% for menu_point in menu %}
+<ul>
+    <li>
+        <a href="{% url menu_point.url_address %}">{{ menu_point.title }}</a>
+        {% if menu_point.title == selected_menu %}
+         SELECTED
+        {% endif %}
+    </li>
+</ul>
+{% endfor %}
+{% endblock %}
+
