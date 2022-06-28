@@ -1,4 +1,4 @@
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, mixins
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
@@ -9,6 +9,28 @@ from django.db import transaction
 
 from .forms import *
 from .models import *
+
+MENU_ALL = [
+    {'title': 'Main', 'url_address': 'home_page'},
+    {'title': 'Product categories', 'url_address': 'product_category_list'},
+    {'title': 'Products', 'url_address': 'products_list'}
+]
+
+MENU_OPERATORS = [
+    {'title': 'Leads', 'url_address': 'lead_list'},
+    {'title': 'Orders', 'url_address': 'order_list'},
+]
+
+
+MENU_PAYMENTS_EXECUTIVE = [
+    {'title': 'Webs', 'url_address': 'web_list'},
+    {'title': 'Offers', 'url_address': 'offer_list'},
+    {'title': 'Payments', 'url_address': 'payment_list'}
+]
+
+MENU_ADMIN = [
+    {'title': 'Users', 'url_address': 'profile_list'}
+]
 
 
 class RegisterView(generic.View):
@@ -41,7 +63,7 @@ class UserLoginView(LoginView):
         return reverse('home_page')
 
 
-class HomePageView(generic.View):
+class HomePageView(mixins.LoginRequiredMixin, generic.View):
     def get(self, request):
         return render(request, 'crm_app/home_page.html')
 
@@ -50,7 +72,8 @@ class UserLogoutView(LogoutView):
     next_page = 'login'
 
 
-class LeadCreationView(generic.CreateView):
+class LeadCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
+    permission_required = 'crm_app.create_lead'
     model = Lead
     form_class = LeadCreationForm
     template_name = 'crm_app/lead_creation.html'
@@ -65,14 +88,17 @@ class LeadCreationView(generic.CreateView):
         return reverse('lead_list')
 
 
-class LeadDetailView(generic.DetailView):
+class LeadDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = 'crm_app.view_lead'
+    permission_denied_message = 'Permission is required!!!!'
     model = Lead
     template_name = 'crm_app/lead_detail.html'
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
 
 
-class LeadListView(generic.ListView):
+class LeadListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = 'crm_app.view_lead'
     model = Lead
     template_name = 'crm_app/lead_list.html'
 
@@ -80,11 +106,12 @@ class LeadListView(generic.ListView):
         return Lead.objects.select_related('offer_FK').all()
 
 
-class LeadToOrderCreationView():
+class LeadToOrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     pass
 
 
-class OrderDetailView(generic.DetailView):
+class OrderDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = 'crm_app.view_order'
     model = Order
     template_name = 'crm_app/order_detail.html'
     pk_url_kwarg = 'id'
@@ -94,7 +121,8 @@ class OrderDetailView(generic.DetailView):
         return Order.objects.prefetch_related('orderedproduct_set').get(pk=self.kwargs.get('id'))
 
 
-class OrderListView(generic.ListView):
+class OrderListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = 'order.view_order'
     model = Order
     template_name = 'crm_app/order_list.html'
 
@@ -102,7 +130,8 @@ class OrderListView(generic.ListView):
         return Order.objects.select_related('order_operator').all()
 
 
-class WebCreationView(generic.CreateView):
+class WebCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
+    permission_required = 'crm_app.create_web'
     model = Web
     form_class = WebCreationForm
     template_name = 'crm_app/web_creation.html'
@@ -116,14 +145,16 @@ class WebCreationView(generic.CreateView):
         return reverse_lazy('web_detail', kwargs={'id': self.object.pk})
 
 
-class WebDetailView(generic.DetailView):
+class WebDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = 'crm_app.view_web'
     model = Web
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
     template_name = 'crm_app/web_detail.html'
 
 
-class WebListView(generic.ListView):
+class WebListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = 'crm_app.view_web'
     model = Web
     context_object_name = 'webs'
     template_name = 'crm_app/web-list.html'
@@ -132,7 +163,8 @@ class WebListView(generic.ListView):
         return Web.objects.all().order_by('web_name')
 
 
-class PaymentCreationView(generic.CreateView):
+class PaymentCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
+    permission_required = 'crm_app.add_paymentstoweb'
     model = PaymentsToWeb
     template_name = 'crm_app/payment_creation.html'
     form_class = PaymentCreationForm
@@ -141,6 +173,7 @@ class PaymentCreationView(generic.CreateView):
 
     def get_success_url(self):
         return reverse('payment_list')
+
     #
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
@@ -176,7 +209,8 @@ class PaymentCreationView(generic.CreateView):
                           )
 
 
-class PaymentDetailView(generic.DetailView):
+class PaymentDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = 'crm_app.view_paymentstoweb'
     model = PaymentsToWeb
     template_name = 'crm_app/payment_detail.html'
     pk_url_kwarg = 'id'
@@ -186,7 +220,8 @@ class PaymentDetailView(generic.DetailView):
         return PaymentsToWeb.objects.select_related('web_FK').get(pk=self.kwargs.get('id'))
 
 
-class PaymentListView(generic.ListView):
+class PaymentListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = 'crm_app.view_paymentstoweb'
     model = PaymentsToWeb
     template_name = 'crm_app/payment_list.html'
 
@@ -194,7 +229,8 @@ class PaymentListView(generic.ListView):
         return PaymentsToWeb.objects.select_related('web_FK').all()
 
 
-class ProductCategoryCreationView(generic.CreateView):
+class ProductCategoryCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
+    permission_required = 'crm_app.add_productcategory'
     form_class = ProductCategoryCreationForm
     template_name = 'crm_app/product_category_creation.html'
 
@@ -202,7 +238,8 @@ class ProductCategoryCreationView(generic.CreateView):
         return reverse_lazy('product_category_detail', kwargs={'id': self.object.pk})
 
 
-class ProductCategoryListView(generic.ListView):
+class ProductCategoryListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = 'crm_app.view_productcategory'
     model = ProductCategory
     template_name = 'crm_app/product_category_list.html'
 
@@ -210,7 +247,8 @@ class ProductCategoryListView(generic.ListView):
         return ProductCategory.objects.prefetch_related('product_set').all()
 
 
-class ProductCategoryDetailView(generic.DetailView):
+class ProductCategoryDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = 'crm_app.view_productcategory'
     model = ProductCategory
     template_name = 'crm_app/product_category_detail.html'
     pk_url_kwarg = 'id'
@@ -220,7 +258,8 @@ class ProductCategoryDetailView(generic.DetailView):
         return ProductCategory.objects.prefetch_related('product_set').get(pk=self.kwargs.get('id'))
 
 
-class ProductCreationView(generic.CreateView):
+class ProductCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
+    permission_required = 'crm_app.add_product'
     model = Product
     form_class = ProductCreationForm
     template_name = 'crm_app/product_creation.html'
@@ -229,14 +268,16 @@ class ProductCreationView(generic.CreateView):
         return reverse_lazy('product_detail', kwargs={'id': self.object.pk})
 
 
-class ProductDetailView(generic.DetailView):
+class ProductDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = 'crm_app.view_product'
     model = Product
     template_name = 'crm_app/product_detail.html'
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
 
 
-class ProductListView(generic.ListView):
+class ProductListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = 'crm_app.view_product'
     model = Product
     template_name = 'crm_app/product_list.html'
 
@@ -244,7 +285,8 @@ class ProductListView(generic.ListView):
         return Product.objects.select_related('product_category').all()
 
 
-class OfferCreationView(generic.CreateView):
+class OfferCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
+    permission_required = 'crm_app.add_offer'
     model = Offer
     template_name = 'crm_app/offer_creation.html'
     form_class = OfferCreationForm
@@ -253,7 +295,8 @@ class OfferCreationView(generic.CreateView):
         return reverse('offer_detail', kwargs={'id': self.object.pk})
 
 
-class OfferDetailView(generic.DetailView):
+class OfferDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = 'crm_app.view_offer'
     model = Offer
     template_name = 'crm_app/offer_detail.html'
     pk_url_kwarg = 'id'
@@ -263,7 +306,8 @@ class OfferDetailView(generic.DetailView):
         return Offer.objects.select_related('web', 'product').get(pk=self.kwargs.get('id'))
 
 
-class OfferListView(generic.ListView):
+class OfferListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = 'crm_app.view_offer'
     model = Offer
     template_name = 'crm_app/offer_list.html'
 
@@ -271,7 +315,8 @@ class OfferListView(generic.ListView):
         return Offer.objects.select_related('web', 'product').all()
 
 
-class ProfileDetailView(generic.DetailView):
+class ProfileDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = 'crm_app.view_profile'
     model = Profile
     template_name = 'crm_app/profile_detail.html'
     pk_url_kwarg = 'id'
@@ -281,6 +326,7 @@ class ProfileDetailView(generic.DetailView):
     #     return Profile.objects.select_related('user').get(self.kwargs.get('id'))
 
 
-class ProfileListView(generic.ListView):
+class ProfileListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = 'crm_app.view_profile'
     model = Profile
     template_name = 'crm_app/profile_list.html'

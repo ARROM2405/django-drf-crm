@@ -97,7 +97,7 @@ class Lead(models.Model):
                                      verbose_name='Contact phone')
     customer_first_name = models.CharField(max_length=25, verbose_name='Customer first name')
     customer_last_name = models.CharField(max_length=25, blank=True, null=True, verbose_name='Customer last name')
-    # product_FK = models.ForeignKey(to=Product, on_delete=models.SET_NULL, null=True, verbose_name='Product FK')
+    # product_FK = models.ForeignKey(to=Product, on_delete=models.CASCADE, null=True, verbose_name='Product FK')
     # product_name = models.CharField(max_length=50, verbose_name='Product name')
     # web_FK = models.ForeignKey(to=Web, on_delete=models.SET_NULL, null=True, verbose_name='Web FK')
     # web_name = models.CharField(max_length=30, verbose_name='Web name')
