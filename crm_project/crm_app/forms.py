@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms import ModelForm
+from django import forms
 
 from .models import *
 
@@ -58,3 +59,32 @@ class PaymentCreationForm(ModelForm):
     class Meta:
         model = PaymentsToWeb
         fields = ['web_FK', 'payment_amount']
+
+
+class OrderCreationForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['product_1'] = forms.ModelChoiceField(queryset=Product.objects.filter(quantity_available__gt=0))
+        self.fields['product_1_quantity'] = forms.IntegerField()
+        self.fields['product_1_quantity'].widget.attrs['min'] = 1
+        self.fields['product_1_price'] = forms.FloatField()
+        self.fields['product_1_price'].widget.attrs['min'] = 0
+
+        self.fields['product_2'] = forms.ModelChoiceField(queryset=Product.objects.filter(quantity_available__gt=0),
+                                                          required=False)
+        self.fields['product_2_quantity'] = forms.IntegerField(required=False)
+        self.fields['product_2_quantity'].widget.attrs['min'] = 1
+        self.fields['product_2_price'] = forms.FloatField(required=False)
+        self.fields['product_2_price'].widget.attrs['min'] = 0
+
+        self.fields['product_3'] = forms.ModelChoiceField(queryset=Product.objects.filter(quantity_available__gt=0),
+                                                          required=False)
+        self.fields['product_3_quantity'] = forms.IntegerField(required=False)
+        self.fields['product_3_quantity'].widget.attrs['min'] = 1
+        self.fields['product_3_price'] = forms.FloatField(required=False)
+        self.fields['product_3_price'].widget.attrs['min'] = 0
+
+    class Meta:
+        model = Order
+        fields = ['customer_first_name', 'customer_last_name', 'status', 'sent_date', 'contact_phone', 'delivery_city',
+                  'delivery_street', 'delivery_house_number', 'delivery_apartment_number', 'delivery_zip_code']

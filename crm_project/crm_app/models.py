@@ -125,24 +125,39 @@ class PaymentsToWeb(models.Model):
 
 class Order(models.Model):
     """Lead can be converted to the order"""
+    # ORDER_STATUSES = [
+    #     ('New order', 'NO'),
+    #     ('In preparation', 'IP'),
+    #     ('Sent', 'SE'),
+    #     ('Delivered', 'DE'),
+    #     ('Return', 'RE'),
+    #     ('Money received', 'MR'),
+    #     ('Confirmed return', 'CR'),
+    #     ('Canceled', 'CN')
+    # ]
+
     ORDER_STATUSES = [
-        ('New order', 'NO'),
-        ('In preparation', 'IP'),
-        ('Sent', 'SE'),
-        ('Delivered', 'DE'),
-        ('Return', 'RE'),
-        ('Money received', 'MR'),
-        ('Confirmed return', 'CR'),
-        ('Canceled', 'CN')
+        ('New order', 'New order'),
+        ('In preparation', 'In preparation'),
+        ('Sent', 'Sent'),
+        ('Delivered', 'Delivered'),
+        ('Return', 'Return'),
+        ('Money received', 'Money received'),
+        ('Confirmed return', 'Confirmed return'),
+        ('Canceled', 'Canceled')
     ]
 
     order_id = models.AutoField(primary_key=True, verbose_name='ID')
     order_created = models.DateTimeField(auto_now_add=True, verbose_name='Order created date and time')
-    lead_FK = models.ForeignKey(to=Lead, on_delete=models.SET_NULL, null=True, verbose_name='Lead FK')
+    lead_FK = models.ForeignKey(to=Lead, default=None, on_delete=models.SET_NULL, null=True, verbose_name='Lead FK')
     customer_first_name = models.CharField(max_length=25, verbose_name='Customer first name')
     customer_last_name = models.CharField(max_length=25, blank=True, null=True, verbose_name='Customer last name')
     status = models.CharField(max_length=30, choices=ORDER_STATUSES, default='New order', verbose_name='Order Status')
     sent_date = models.DateField(verbose_name='Send date for the order')
+    phone_regex_validator = RegexValidator(regex=r'\d{3}-\d{3}-\d{3}',
+                                           message='Phone should be entered in a 123-456-789 format')
+    contact_phone = models.CharField(max_length=11, validators=[phone_regex_validator],
+                                     verbose_name='Contact phone')
     delivery_city = models.CharField(max_length=30, verbose_name='Delivery city')
     delivery_street = models.CharField(max_length=30, verbose_name='Delivery street')
     delivery_house_number = models.CharField(max_length=30, blank=True, null=True, verbose_name='Delivery house number')
@@ -166,6 +181,9 @@ class OrderedProduct(models.Model):
 
     def __str__(self):
         return f'{self.product_FK.name}: {self.product_FK.name}'
+
+    def total_price(self):
+        return float(self.ordered_product_price) * float(self.ordered_quantity)
 
 
 class Invoice(models.Model):

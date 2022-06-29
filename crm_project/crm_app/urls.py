@@ -21,6 +21,7 @@ urlpatterns = [
     path('offer_creation/', OfferCreationView.as_view(), name='offer_creation'),
     path('offer_detail/<int:id>/', OfferDetailView.as_view(), name='offer_detail'),
     path('offer_list/', OfferListView.as_view(), name='offer_list'),
+    path('order_creation/', OrderCreationView.as_view(), name='order_creation'),
     path('order_detail/<int:id>/', OrderDetailView.as_view(), name='order_detail'),
     path('order_list/', OrderListView.as_view(), name='order_list'),
     path('payment_creation/<int:web_id>/', PaymentCreationView.as_view(), name='payment_creation'),

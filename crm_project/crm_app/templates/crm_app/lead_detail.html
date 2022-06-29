@@ -22,7 +22,10 @@
 {% endif %}
 </h3>
 {% if perms.crm_app.add_order %}
-<h3><button type="button" value="proceed_to_order_creation">Create order</h3>
+<form method="post">
+    {% csrf_token %}
+    <button name="lead_id_from_button" type="submit" value="{{object.pk}}">Create order</button>
+</form>
 {% endif %}
 </body>
 </html>

@@ -1,3 +1,5 @@
+{% load crm_app_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +9,13 @@
 <body>
 <h1>Order ID: {{ object.pk }}</h1>
 <h3>Status: {{ object.status }}</h3>
-<h3>Lead: <a href="{% url 'lead_detail' object.lead_FK.pk %}"> {{ object.lead_FK }}</a></h3>
+<h3>Lead:
+    {% if object.lead_FK %}
+    <a href="{% url 'lead_detail' object.lead_FK.pk %}"> {{ object.lead_FK }}</a>
+    {% else %}
+    No lead
+    {% endif %}
+</h3>
 <h3>Customer: {{ object.customer_first_name }}, {{ object.customer_last_name }}</h3>
 <h3>Send date:
     {% if object.sent_date %}
@@ -27,5 +35,28 @@
 {% endif %}
 <h3>Zip code: {{ object.delivery_zip_code }}</h3>
 <h3>Operator: {{ object.order_operator }}</h3>
+<h3>Ordered products: </h3>
+<table border="black solid">
+    <tr>
+        <th>Product</th>
+        <th>Quantity ordered</th>
+        <th>Price per unit</th>
+        <th>Total price</th>
+    </tr>
+    {% for ordered_product in object.orderedproduct_set.all %}
+    <tr>
+        <td>{{ ordered_product.product_FK }}</td>
+        <td>{{ ordered_product.ordered_quantity }}</td>
+        <td>{{ ordered_product.ordered_product_price }}</td>
+        <td>{{ ordered_product.total_price }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="3">
+            Order total price
+        </td>
+        <td>{{ object | order_total_price }}</td>
+    </tr>
+</table>
 </body>
 </html>
