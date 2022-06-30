@@ -30,6 +30,9 @@ class ProductCategory(models.Model):
     def __str__(self):
         return f'{self.category_name}'
 
+    def products_in_category_count(self):
+        return Product.objects.filter(product_category=self).count()
+
 
 class Product(models.Model):
     """Information on the product"""
@@ -45,6 +48,8 @@ class Product(models.Model):
     product_image = models.FileField(upload_to='image_pics', null=True, blank=True, verbose_name='Image of a product')
     quantity_available = models.IntegerField(validators=[MinValueValidator(0)],
                                              verbose_name='Available quantity of products')
+    quantity_in_delivery = models.IntegerField(validators=[MinValueValidator(0)], default=0,
+                                               verbose_name='Products in delivery to clients')
 
     def __str__(self):
         return f'{self.product_name}'

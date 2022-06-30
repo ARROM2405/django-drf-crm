@@ -5,6 +5,8 @@
     <title>Offer creation</title>
 </head>
 <body>
+{% include 'crm_app/menu.html' %}
+<a href="{% url 'offer_list' %}">Back to offer list</a>
 <h1>Offer creation form</h1>
 <form method="post">
     {% csrf_token %}

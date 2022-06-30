@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Product creation form</title>
+    <title>{{ object }} update</title>
 </head>
 <body>
 {% include 'crm_app/menu.html' %}
-<a href="{% url 'product_list' %}">Back to product list</a>
-<h1>Product creation form</h1>
+<a href="{% url 'product_detail' object.pk %}">Back to {{ object }} detail</a>
+<h1>{{ object }} update</h1>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Create new product</button>
+    <button type="submit" value="update">Update product</button>
 </form>
 </body>
 </html>

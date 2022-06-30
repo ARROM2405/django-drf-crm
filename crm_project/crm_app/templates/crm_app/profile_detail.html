@@ -5,6 +5,8 @@
     <title>User {{ object.user.name }}</title>
 </head>
 <body>
+{% include 'crm_app/menu.html' %}
+<a href="{% url 'profile_list' %}">Back to user list</a>
 <h1>Profile details</h1>
 <h3>Login: {{ object.user.username }}</h3>
 <h3>Role: {{ object.role }}</h3>

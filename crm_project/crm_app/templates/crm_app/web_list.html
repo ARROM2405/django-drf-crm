@@ -8,12 +8,28 @@
     <title>Web list</title>
 </head>
 <body>
+<h1>Web List</h1>
+{% if perms.crm_app.add_web %}
+<form method="post">
+    {% csrf_token %}
+    <button name="add_web" value="True">Add new web</button>
+</form>
+{% endif %}
 {% if webs %}
-<ul>
+<table border="solid black">
+    <tr>
+        <th>Web id</th>
+        <th>Web name</th>
+        <th>Web balance</th>
+    </tr>
     {% for web in webs %}
-    <li><a href="{% url 'web_detail' web.pk %}">{{ web.web_name }}</a></li>
+    <tr>
+        <td>{{ web.pk }}</td>
+        <td><a href="{% url 'web_detail' web.pk %}">{{ web.web_name }}</a></td>
+        <td>{{ web.balance }}</td>
+    </tr>
     {% endfor %}
-</ul>
+</table>
 {% else %}
 <h3>No webs added yet.</h3>
 {% endif %}

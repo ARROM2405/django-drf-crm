@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Offer {{ object.offer_id }} update</title>
+</head>
+<body>
+<h1>Offer {{ object.offer_id }} update</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" value="Update">Save changes</button>
+</form>
+</body>
+</html>

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,10 +7,18 @@
     <title>Payment {{ object.pk }}</title>
 </head>
 <body>
+{% include 'crm_app/menu.html' %}
+<a href="{% url 'payment_list' %}">Back to payment list</a>
 <h1>Payment ID: {{ object.pk }}</h1>
-<h3>Paid to: {{ object.web_FK }}</h3>
+<h3>Paid to: <a href="{% url 'web_detail' object.web_FK.pk %}">{{ object.web_FK }}</a></h3>
 <h3>Paid at: {{ object.payment_date }}</h3>
 <h3>Paid amount: {{ object.payment_amount }}</h3>
 <h3>Created by: <a href="{% url 'profile_detail' object.user_added.pk %}">{{ object.user_added }}</a></h3>
+{% if perms.crm_app.change_paymenttoweb %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="update_payment" value="True">Update/Delete payment</button>
+</form>
+{% endif %}
 </body>
 </html>

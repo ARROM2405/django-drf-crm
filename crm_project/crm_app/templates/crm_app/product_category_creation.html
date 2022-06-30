@@ -5,6 +5,8 @@
     <title>Product category creation</title>
 </head>
 <body>
+{% include 'crm_app/menu.html' %}
+<a href="{% url 'product_category_list' %}">Back to product category list</a>
 <h1>Product category creation form</h1>
 <form method="post">
     {% csrf_token %}

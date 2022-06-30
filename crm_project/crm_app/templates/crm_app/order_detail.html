@@ -1,4 +1,5 @@
 {% load crm_app_tags %}
+{% include 'crm_app/menu.html' %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,6 +8,9 @@
     <title>Order {{object.pk}}</title>
 </head>
 <body>
+{% block top_meny %}
+{% endblock %}
+<a href="{% url 'order_list' %}">Back to order list</a>
 <h1>Order ID: {{ object.pk }}</h1>
 <h3>Status: {{ object.status }}</h3>
 <h3>Lead:
@@ -34,7 +38,11 @@
 <h3>Apartment: {{ object.delivery_apartment_number }}</h3>
 {% endif %}
 <h3>Zip code: {{ object.delivery_zip_code }}</h3>
+{% if perms.crm_app.view_profile %}
+<h3>Operator: <a href="{% url 'profile_detail' object.order_operator.profile.pk %}">{{ object.order_operator }}</a></h3>
+{% else %}
 <h3>Operator: {{ object.order_operator }}</h3>
+{% endif %}
 <h3>Ordered products: </h3>
 <table border="black solid">
     <tr>
@@ -45,7 +53,7 @@
     </tr>
     {% for ordered_product in object.orderedproduct_set.all %}
     <tr>
-        <td>{{ ordered_product.product_FK }}</td>
+        <td><a href="{% url 'product_detail' ordered_product.product_FK.pk %}">{{ ordered_product.product_FK }}</a></td>
         <td>{{ ordered_product.ordered_quantity }}</td>
         <td>{{ ordered_product.ordered_product_price }}</td>
         <td>{{ ordered_product.total_price }}</td>
@@ -58,5 +66,11 @@
         <td>{{ object | order_total_price }}</td>
     </tr>
 </table>
+{% if perms.crm_app.change_order %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="update_order" value="true">Update order</button>
+</form>
+{% endif %}
 </body>
 </html>

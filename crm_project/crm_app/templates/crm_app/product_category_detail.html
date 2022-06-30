@@ -5,6 +5,8 @@
     <title>{{ object.category_name }}</title>
 </head>
 <body>
+{% include 'crm_app/menu.html' %}
+<a href="{% url 'product_category_list' %}">Back to product category list</a>
 <h1>{{ object.category_name }}</h1>
 {% if object.product_set.all %}
   <h3>List of products in the category</h3>
@@ -16,7 +18,13 @@
     </tr>
     {% for product in object.product_set.all %}
       <tr>
-          <td>HERE HAS TO BE IMAGE</td>
+          <td>
+              {% if product.product_image %}
+              <img src="{{ product.product_image.url }}" width="100">
+              {% else %}
+              No image
+              {% endif %}
+          </td>
           <td><a href="{% url 'product_detail' product.pk %}">{{ product.product_name }}</a></td>
           <td>{{ product.quantity_available }}</td>
       </tr>
@@ -24,6 +32,12 @@
   </table>
 {% else %}
 <h3>No related products yet</h3>
+{% endif %}
+{% if perms.crm_app.change_productcategory %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Update category</button>
+</form>
 {% endif %}
 </body>
 </html>

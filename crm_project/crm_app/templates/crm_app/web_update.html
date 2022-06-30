@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Web creation</title>
+    <title>{{ object }} Update</title>
 </head>
 <body>
 {% include 'crm_app/menu.html' %}
-<a href="{% url 'web_list' %}">Back to web list</a>
-<h1>Web creation</h1>
+<h1>{{ object }} update</h1>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Create new Web</button>
+    <button type="submit" value="update">Update web</button>
 </form>
 </body>
 </html>

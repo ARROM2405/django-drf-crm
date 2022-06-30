@@ -1,3 +1,5 @@
+{% include 'crm_app/menu.html' %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +7,9 @@
     <title>{{ object.product_name }}</title>
 </head>
 <body>
+{% block top_menu %}
+{% endblock %}
+<a href="{% url 'product_list' %}">Back to product list</a>
 <h1>{{ object.product_name }}</h1>
 <h3>ID: {{ object.product_id }}</h3>
 <h3>Description</h3>
@@ -12,7 +17,17 @@
 <h3>Price: {{ object.product_price }}</h3>
 <h3>Quantity available: {{ object.quantity_available }}</h3>
 <h3>Category: <a href="{% url 'product_category_detail' object.product_category.pk %}">
-    {{ object.product_category.category_name }}
-</a></h3>
+    {{ object.product_category.category_name }}</a></h3>
+{% if object.product_image %}
+<img src="{{ object.product_image.url }}" width="300">
+{% else %}
+<h3>No image</h3>
+{% endif %}
+{% if perms.crm_app.change_product %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="update_product">Update product</button>
+</form>
+{% endif %}
 </body>
 </html>

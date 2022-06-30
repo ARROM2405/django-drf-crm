@@ -8,6 +8,12 @@
 </head>
 <body>
 <h1>Offer list</h1>
+{% if perms.crm_app.add_offer %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="add_offer" value="True">Add offer</button>
+</form>
+{% endif %}
 {% if object_list %}
 <table border="solid black">
     <tr>

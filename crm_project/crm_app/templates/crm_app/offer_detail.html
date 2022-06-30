@@ -1,3 +1,5 @@
+{% include 'crm_app/menu.html' %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,12 +7,21 @@
     <title>Offer {{ object.offer_id }}</title>
 </head>
 <body>
+{% block top_menu %}
+{% endblock %}
+<a href="{% url 'offer_list' %}">Back to offer list</a>
 <h1>Offer {{ object.offer_id }}</h1>
 <h3>Web: <a href="{% url 'web_detail' object.web.pk %}">{{ object.web.web_name }}</a></h3>
 <h3>Product: <a href="{% url 'product_detail' object.product.pk %}">{{ object.product.product_name }}</a></h3>
 <h3>Click cost: {{ object.click_cost }}</h3>
 {% if object.website_url %}
 <h3>Website url: <a href="{{ object.website_url }}">{{ object.website_url }}</a></h3>
+{% endif %}
+{% if perms.crm_app.change_offer %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="update_offer" value="True">Update offer</button>
+</form>
 {% endif %}
 </body>
 </html>

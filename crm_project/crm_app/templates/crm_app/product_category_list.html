@@ -8,6 +8,12 @@
 </head>
 <body>
 <h1>List of product categories</h1>
+{% if perms.crm_app.add_productcategory %}
+<form method="post">
+    {% csrf_token %}
+    <button name="add_product_category" value="True">Add product category</button>
+</form>
+{% endif %}
 {% if object_list %}
     <table border="solid black">
         <tr>
@@ -17,8 +23,7 @@
         {% for category in object_list %}
         <tr>
             <td><a href="{% url 'product_category_detail' category.pk %}">{{ category.category_name }}</a></td>
-            <td>{{ category.product.count }}</td>
-
+            <td>{{ category.products_in_category_count }}</td>
         </tr>
         {% endfor %}
     </table>

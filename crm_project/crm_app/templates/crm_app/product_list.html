@@ -8,19 +8,33 @@
 </head>
 <body>
 <h1>List of products</h1>
+{% if perms.crm_app.add_product %}
+<form method="post">
+    {% csrf_token %}
+    <button name="add_product" value="True">Add new product</button>
+</form>
+{% endif %}
 {% if object_list %}
 <table border="solid black">
     <tr>
         <th>Product name</th>
         <th>Product image</th>
         <th>Quantity available</th>
+        <th>Quantity in delivery</th>
         <th>Product category</th>
     </tr>
     {% for product in object_list %}
     <tr>
         <td><a href="{% url 'product_detail' product.pk %}">{{ product.product_name }}</a></td>
-        <td>HERE HAS TO BE IMAGE!!!</td>
+        <td>
+            {% if product.product_image %}
+            <img src="{{ product.product_image.url }}" width="100">
+            {% else %}
+            No image
+            {% endif %}
+        </td>
         <td>{{ product.quantity_available }}</td>
+        <td>{{ product.quantity_in_delivery }}</td>
         <td><a href="{% url 'product_category_detail' product.product_category.product_category_id %}">
             {{ product.product_category.category_name }}
         </a></td>

@@ -5,6 +5,8 @@
     <title>Lead creation form</title>
 </head>
 <body>
+{% include 'crm_app/menu.html' %}
+<a href="{% url 'lead_list' %}">Back to lead list</a>
 <h1>Lead creation</h1>
 <form method="post">
   {% csrf_token %}

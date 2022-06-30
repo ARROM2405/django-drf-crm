@@ -7,6 +7,12 @@
 </head>
 <body>
 <h1>Lead list</h1>
+{% if perms.crm_app.add_lead %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="add_lead" value="True">Add lead</button>
+</form>
+{% endif %}
 {% if object_list %}
 <table border="black solid">
     <tr>

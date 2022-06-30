@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment {{ object.pk }} update</title>
+</head>
+<body>
+<h1>Payment to {{ object }} update</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" value="update">Update payment</button>
+</form>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="delete_payment" value="True">Delete payment</button>
+</form>
+</body>
+</html>

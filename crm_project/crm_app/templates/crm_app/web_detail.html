@@ -5,12 +5,28 @@
     <title>{{object.name}} details</title>
 </head>
 <body>
+{% include 'crm_app/menu.html' %}
+<a href="{% url 'web_list' %}">Back to web list</a>
 <h1>{{object.web_name}}</h1>
 <h3>ID: {{ object.pk }}</h3>
 <h3>API key: {{ object.web_api_key }}</h3>
 <h3>Balance: {{ object.balance }}</h3>
 {% if object.web_description %}
 <p>{{ object.web_description }}</p>
+{% endif %}
+<h3>
+    Active:
+    {% if object.active %}
+    Yes
+    {% else %}
+    No
+    {% endif %}
+</h3>
+{% if perms.crm_app.change_web %}
+<form method="post">
+    {% csrf_token %}
+    <button name="update_web" value="True">Update web</button>
+</form>
 {% endif %}
 </body>
 </html>

@@ -1,3 +1,5 @@
+import copy
+
 from django.contrib.auth import login, authenticate, mixins
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.forms import AuthenticationForm
@@ -129,6 +131,10 @@ class LeadListView(mixins.PermissionRequiredMixin, generic.ListView):
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Leads')
         return context
 
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('add_lead'):
+            return redirect(reverse('lead_creation'))
+
 
 class OrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     permission_required = 'crm_app.add_order'
@@ -151,7 +157,6 @@ class OrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
         if self.request.session.get('lead_pk_to_be_processed'):
             context['lead'] = Lead.objects.get(pk= self.request.session.get('lead_pk_to_be_processed'))
         return context
-
 
     def post(self, request, *args, **kwargs):
         if self.request.POST.get('delete_lead_link'):
@@ -245,6 +250,10 @@ class OrderDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     def get_object(self, queryset=None):
         return Order.objects.prefetch_related('orderedproduct_set').get(pk=self.kwargs.get('id'))
 
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('update_order'):
+            return redirect(reverse('order_update', kwargs={'id': self.kwargs.get('id')}))
+
 
 class OrderListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_order'
@@ -258,6 +267,26 @@ class OrderListView(mixins.PermissionRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Orders')
         return context
+
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('add_order'):
+            return redirect(reverse('order_creation'))
+
+
+class OrderUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
+    permission_required = 'crm_app.change_order'
+    model = Order
+    template_name = 'crm_app/order_update.html'
+    fields = ['sent_date', 'contact_phone', 'delivery_city', 'delivery_street', 'delivery_house_number', 'delivery_apartment_number',
+              'delivery_zip_code']
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    def get_object(self, queryset=None):
+        return Order.objects.get(pk=self.kwargs.get('id'))
+
+    def get_success_url(self):
+        return reverse('order_detail', kwargs={'id': self.kwargs.get('id')})
 
 
 class WebCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
@@ -282,6 +311,10 @@ class WebDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     query_pk_and_slug = True
     template_name = 'crm_app/web_detail.html'
 
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('update_web'):
+            return redirect(reverse('web_update', kwargs={'id': self.kwargs.get('id')}))
+
 
 class WebListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_web'
@@ -297,6 +330,25 @@ class WebListView(mixins.PermissionRequiredMixin, generic.ListView):
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Webs')
         return context
 
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('add_web'):
+            return redirect(reverse('web_creation'))
+
+
+class WebUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
+    permission_required = 'crm_app.change_web'
+    model = Web
+    fields = ['web_name', 'web_description', 'active']
+    template_name = 'crm_app/web_update.html'
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    def get_success_url(self):
+        return reverse('web_detail', kwargs={'id': self.kwargs.get('id')})
+
+    def get_object(self, queryset=None):
+        return Web.objects.get(pk=self.kwargs.get('id'))
+
 
 class PaymentCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     permission_required = 'crm_app.add_paymentstoweb'
@@ -308,12 +360,6 @@ class PaymentCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         return reverse('payment_list')
-
-    #
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['web'] = Web.objects.get(pk=self.kwargs.get('web_id'))
-    #     return context
 
     def get_initial(self, **kwargs):
         initial = super(PaymentCreationView, self).get_initial(**kwargs)
@@ -354,6 +400,10 @@ class PaymentDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     def get_object(self, queryset=None):
         return PaymentsToWeb.objects.select_related('web_FK').get(pk=self.kwargs.get('id'))
 
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('update_payment'):
+            return redirect(reverse('payment_update', kwargs={'id': self.kwargs.get('id')}))
+
 
 class PaymentListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_paymentstoweb'
@@ -367,6 +417,43 @@ class PaymentListView(mixins.PermissionRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Payments')
         return context
+
+
+class PaymentUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView, generic.edit.DeletionMixin):
+    permission_required = 'crm_app.change_paymentstoweb'
+    model = PaymentsToWeb
+    template_name = 'crm_app/payment_update.html'
+    fields = ['payment_amount']
+    pk_url_kwarg = 'id'
+    slug_url_kwarg = True
+
+    def get_object(self, queryset=None):
+        return PaymentsToWeb.objects.get(pk=self.kwargs.get('id'))
+
+    def get_success_url(self):
+        kwarg_id = self.kwargs.get('id')
+        if self.request.POST.get('Delete payment'):
+            return reverse('payment_delete', kwargs={'id': kwarg_id})
+        return reverse('payment_detail', kwargs={'id': kwarg_id})
+
+    def post(self, request, *args, **kwargs):
+        payment_object = self.get_object()
+        old_payment_sum = copy.copy(payment_object.payment_amount)
+        web = payment_object.web_FK
+        web_previous_balance = web.balance
+        with transaction.atomic():
+            if self.request.POST.get('delete_payment'):
+                web.balance = web_previous_balance + payment_object.payment_amount
+                web.save(update_fields=['balance'])
+                self.delete(self.request)
+                return redirect(reverse('payment_list'))
+            else:
+                new_payment_sum = self.request.POST.get('payment_amount')
+                difference = float(old_payment_sum) - float(new_payment_sum)
+                web.balance = float(web_previous_balance) + difference
+                web.save(update_fields=['balance'])
+                super().post(request, *args, **kwargs)
+                return redirect(self.get_success_url())
 
 
 class ProductCategoryCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
@@ -392,6 +479,10 @@ class ProductCategoryListView(mixins.PermissionRequiredMixin, generic.ListView):
                             selected_menu='Product categories')
         return context
 
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('add_product_category'):
+            return redirect(reverse('product_category_creation'))
+
 
 class ProductCategoryDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     permission_required = 'crm_app.view_productcategory'
@@ -402,6 +493,24 @@ class ProductCategoryDetailView(mixins.PermissionRequiredMixin, generic.DetailVi
 
     def get_object(self, queryset=None):
         return ProductCategory.objects.prefetch_related('product_set').get(pk=self.kwargs.get('id'))
+
+    def post(self, request, *args, **kwargs):
+        return redirect(reverse('product_category_update', kwargs={'id': self.kwargs.get('id')}))
+
+
+class ProductCategoryUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
+    permission_required = 'crm_app.change_productcategory'
+    model = ProductCategory
+    fields = ['category_name']
+    template_name = 'crm_app/product_category_update.html'
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    def get_object(self, queryset=None):
+        return ProductCategory.objects.get(pk=self.kwargs.get('id'))
+
+    def get_success_url(self):
+        return reverse('product_category_detail', kwargs={'id': self.kwargs.get('id')})
 
 
 class ProductCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
@@ -421,6 +530,9 @@ class ProductDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
 
+    def post(self, request, *args, **kwargs):
+        return redirect(reverse('product_update', kwargs={'id': self.kwargs.get('id')}))
+
 
 class ProductListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_product'
@@ -434,6 +546,23 @@ class ProductListView(mixins.PermissionRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Products')
         return context
+
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('add_product'):
+            return redirect(reverse('product_creation'))
+
+
+class ProductUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
+    permission_required = 'crm_app.change_product'
+    model = Product
+    fields = ['product_name', 'product_price', 'product_category', 'product_description', 'product_image',
+              'quantity_available']
+    template_name = 'crm_app/product_update.html'
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    def get_success_url(self):
+        return reverse('product_detail', kwargs={'id':self.kwargs.get('id')})
 
 
 class OfferCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
@@ -456,6 +585,12 @@ class OfferDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     def get_object(self, queryset=None):
         return Offer.objects.select_related('web', 'product').get(pk=self.kwargs.get('id'))
 
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('update_offer'):
+            return redirect(reverse('offer_update', kwargs={'id': self.kwargs.get('id')}))
+        else:
+            return HttpResponse('Not found')
+
 
 class OfferListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_offer'
@@ -469,6 +604,29 @@ class OfferListView(mixins.PermissionRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Offers')
         return context
+
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('add_offer'):
+            return redirect(reverse('offer_creation'))
+
+
+class OfferUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
+    permission_required = 'crm_app.change_offer'
+    model = Offer
+    template_name = 'crm_app/offer_update.html'
+    fields = ['click_cost']
+    pk_url_kwarg = 'id'
+    query_pk_and_slug = True
+
+    def get_object(self, queryset=None):
+        return Offer.objects.get(pk=self.kwargs.get('id'))
+
+    def get_success_url(self):
+        return reverse('offer_detail', kwargs={'id': self.kwargs.get('id')})
+
+    # def post(self, request, *args, **kwargs):
+    #     offer = Offer.objects.get(pk=self.kwargs.get(''))
+    #     return redirect(reverse('offer_detail', kwargs={'id': self.kwargs.get('id')}))
 
 
 class ProfileDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
