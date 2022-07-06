@@ -155,7 +155,7 @@ class OrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.session.get('lead_pk_to_be_processed'):
-            context['lead'] = Lead.objects.get(pk= self.request.session.get('lead_pk_to_be_processed'))
+            context['lead'] = Lead.objects.get(pk=self.request.session.get('lead_pk_to_be_processed'))
         return context
 
     def post(self, request, *args, **kwargs):
@@ -220,6 +220,10 @@ class OrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
                             updated_available_quantity = \
                                 current_available_quantity - form_data.get(quantity_ordered_and_price_fields[0])
                             product.quantity_available = updated_available_quantity
+                            prev_quantity_in_delivery = product.quantity_in_delivery
+                            updated_quantity_in_delivery = prev_quantity_in_delivery + \
+                                                           form_data.get(quantity_ordered_and_price_fields[0])
+                            product.quantity_in_delivery = updated_quantity_in_delivery
                             product.save()
 
                             OrderedProduct.objects.create(
@@ -277,7 +281,8 @@ class OrderUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
     permission_required = 'crm_app.change_order'
     model = Order
     template_name = 'crm_app/order_update.html'
-    fields = ['sent_date', 'contact_phone', 'delivery_city', 'delivery_street', 'delivery_house_number', 'delivery_apartment_number',
+    fields = ['status', 'sent_date', 'contact_phone', 'delivery_city', 'delivery_street', 'delivery_house_number',
+              'delivery_apartment_number',
               'delivery_zip_code']
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
@@ -287,6 +292,73 @@ class OrderUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
 
     def get_success_url(self):
         return reverse('order_detail', kwargs={'id': self.kwargs.get('id')})
+
+    def post(self, request, *args, **kwargs):
+        order = self.get_object()
+        ordered_products = OrderedProduct.objects.filter(order_FK=order)
+        old_status = order.status
+        new_status = self.request.POST.get('status')
+        with transaction.atomic():
+            if old_status in ('New order', 'In preparation', 'Sent') and new_status in ('Delivered', 'Money received'):
+                for ordered_product in ordered_products:
+                    product = ordered_product.product_FK
+                    old_quantity_in_delivery = product.quantity_in_delivery
+                    new_quantity_in_delivery = old_quantity_in_delivery - ordered_product.ordered_quantity
+                    product.quantity_in_delivery = new_quantity_in_delivery
+                    product.save(update_fields=['quantity_in_delivery'])
+            elif old_status in ('New order', 'In preparation', 'Sent') and \
+                    new_status in ('Return', 'Confirmed return', 'Canceled'):
+                for ordered_product in ordered_products:
+                    product = ordered_product.product_FK
+                    old_quantity_in_delivery = product.quantity_in_delivery
+                    new_quantity_in_delivery = old_quantity_in_delivery - ordered_product.ordered_quantity
+                    product.quantity_in_delivery = new_quantity_in_delivery
+                    old_quantity_available = product.quantity_available
+                    new_quantity_available = old_quantity_available + ordered_product.ordered_quantity
+                    product.quantity_available = new_quantity_available
+                    product.save(update_fields=['quantity_available', 'quantity_in_delivery'])
+            elif old_status in ('Return', 'Confirmed return', 'Canceled') and \
+                    new_status in ('New order', 'In preparation', 'Sent'):
+                for ordered_product in ordered_products:
+                    product = ordered_product.product_FK
+                    old_quantity_in_delivery = product.quantity_in_delivery
+                    new_quantity_in_delivery = old_quantity_in_delivery + ordered_product.ordered_quantity
+                    product.quantity_in_delivery = new_quantity_in_delivery
+                    old_quantity_available = product.quantity_available
+                    new_quantity_available = old_quantity_available - ordered_product.ordered_quantity
+                    product.quantity_available = new_quantity_available
+                    product.save(update_fields=['quantity_available', 'quantity_in_delivery'])
+            elif old_status in ('Delivered', 'Money received') and \
+                    new_status in ('New order', 'In preparation', 'Sent'):
+                for ordered_product in ordered_products:
+                    product = ordered_product.product_FK
+                    old_quantity_in_delivery = product.quantity_in_delivery
+                    new_quantity_in_delivery = old_quantity_in_delivery + ordered_product.ordered_quantity
+                    product.quantity_in_delivery = new_quantity_in_delivery
+                    product.save(update_fields=['quantity_in_delivery'])
+            elif old_status in ('Delivered', 'Money received') and \
+                    new_status in ('Return', 'Confirmed return', 'Canceled'):
+                for ordered_product in ordered_products:
+                    product = ordered_product.product_FK
+                    old_quantity_in_delivery = product.quantity_in_delivery
+                    new_quantity_in_delivery = old_quantity_in_delivery + ordered_product.ordered_quantity
+                    product.quantity_in_delivery = new_quantity_in_delivery
+                    old_quantity_available = product.quantity_available
+                    new_quantity_available = old_quantity_available + ordered_product.ordered_quantity
+                    product.quantity_available = new_quantity_available
+                    product.save(update_fields=['quantity_available'])
+            elif old_status in ('Return', 'Confirmed return', 'Canceled') and \
+                    new_status in ('Delivered', 'Money received'):
+                for ordered_product in ordered_products:
+                    product = ordered_product.product_FK
+                    old_quantity_in_delivery = product.quantity_in_delivery
+                    new_quantity_in_delivery = old_quantity_in_delivery + ordered_product.ordered_quantity
+                    product.quantity_in_delivery = new_quantity_in_delivery
+                    old_quantity_available = product.quantity_available
+                    new_quantity_available = old_quantity_available - ordered_product.ordered_quantity
+                    product.quantity_available = new_quantity_available
+                    product.save(update_fields=['quantity_available'])
+            return super().post(request, *args, **kwargs)
 
 
 class WebCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
@@ -333,6 +405,8 @@ class WebListView(mixins.PermissionRequiredMixin, generic.ListView):
     def post(self, request, *args, **kwargs):
         if self.request.POST.get('add_web'):
             return redirect(reverse('web_creation'))
+        elif self.request.POST.get('web_pk') is not None:
+            return redirect(reverse('payment_creation', kwargs={'web_id': self.request.POST.get('web_pk')}))
 
 
 class WebUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
@@ -562,7 +636,7 @@ class ProductUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
     query_pk_and_slug = True
 
     def get_success_url(self):
-        return reverse('product_detail', kwargs={'id':self.kwargs.get('id')})
+        return reverse('product_detail', kwargs={'id': self.kwargs.get('id')})
 
 
 class OfferCreationView(mixins.PermissionRequiredMixin, generic.CreateView):

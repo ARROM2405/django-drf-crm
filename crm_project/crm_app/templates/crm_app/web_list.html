@@ -27,6 +27,12 @@
         <td>{{ web.pk }}</td>
         <td><a href="{% url 'web_detail' web.pk %}">{{ web.web_name }}</a></td>
         <td>{{ web.balance }}</td>
+        <td>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="web_pk" value="{{web.pk}}">Make payment</button>
+            </form>
+        </td>
     </tr>
     {% endfor %}
 </table>

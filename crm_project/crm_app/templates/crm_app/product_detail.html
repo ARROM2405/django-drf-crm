@@ -16,6 +16,7 @@
 <p>{{ object.product_description }}</p>
 <h3>Price: {{ object.product_price }}</h3>
 <h3>Quantity available: {{ object.quantity_available }}</h3>
+<h3>Quantity in delivery to clients: {{ object.quantity_in_delivery }}</h3>
 <h3>Category: <a href="{% url 'product_category_detail' object.product_category.pk %}">
     {{ object.product_category.category_name }}</a></h3>
 {% if object.product_image %}

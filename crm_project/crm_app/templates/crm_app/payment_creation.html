@@ -5,6 +5,8 @@
     <title>Payment creation</title>
 </head>
 <body>
+{% include 'crm_app/menu.html' %}
+<a href="{% url 'payment_list' %}">Back to payment list</a>
 <h1>Payment creation</h1>
 <form method="post">
     {% csrf_token %}
