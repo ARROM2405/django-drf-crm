@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import logging.config
+from django.utils.log import DEFAULT_LOGGING
 load_dotenv()
 
 
@@ -140,3 +142,29 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'info_logger.log',
+            'level': 'INFO',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'info_logger': {
+            'level': 'INFO',
+            'handlers': ['file'],
+        }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{name} {levelname} {asctime} {message}',
+            'style': '{'
+        }
+    }
+}
+

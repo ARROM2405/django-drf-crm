@@ -1,4 +1,5 @@
 import copy
+import logging
 
 from django.contrib.auth import login, authenticate, mixins
 from django.contrib.auth.base_user import BaseUserManager
@@ -13,6 +14,8 @@ from django.http import HttpResponse
 
 from .forms import *
 from .models import *
+
+info_logger = logging.getLogger('info_logger')
 
 MENU_ALL = [
     {'title': 'Main', 'url_address': 'home_page'},
@@ -54,9 +57,11 @@ class RegisterView(generic.View):
     form = RegistrationForm
 
     def get(self, request, form=form):
+        info_logger.info(f'GET request, url: {reverse("register")}')
         return render(request, 'crm_app/registration.html', context={'form': form})
 
     def post(self, request, form=form):
+        info_logger.info(f'POST request, url: {reverse("register")}')
         form = form(request.POST)
         if form.is_valid():
             user = form.save()
@@ -76,18 +81,31 @@ class UserLoginView(LoginView):
     authentication_form = AuthenticationForm
     template_name = 'crm_app/login.html'
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("login")}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("login")}, user: {self.request.POST.get("username")}')
+        return super().post(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse('home_page')
 
 
 class HomePageView(mixins.LoginRequiredMixin, generic.View):
     def get(self, request):
+        info_logger.info(f'GET request, url: {reverse("home_page")}, user: {self.request.user}')
         context = add_menu_to_context(context=dict(), user_role=self.request.user.profile.role, selected_menu='Main')
         return render(request, 'crm_app/home_page.html', context=context)
 
 
 class UserLogoutView(LogoutView):
     next_page = 'login'
+
+    def dispatch(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("logout")}, user: {self.request.user}')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class LeadCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
@@ -96,10 +114,15 @@ class LeadCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     form_class = LeadCreationForm
     template_name = 'crm_app/lead_creation.html'
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("lead_creation")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def form_valid(self, form):
         offer = form.cleaned_data.get('offer_FK')
         form.instance.lead_cost = offer.click_cost
         form.save()
+        info_logger.info(f'POST request, url: {reverse("lead_creation")}, user: {self.request.user}, form_valid')
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -113,7 +136,14 @@ class LeadDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("lead_detail", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("lead_detail", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
         self.request.session['lead_pk_to_be_processed'] = self.request.POST.get('lead_id_from_button')
         return redirect('order_creation')
 
@@ -131,7 +161,12 @@ class LeadListView(mixins.PermissionRequiredMixin, generic.ListView):
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Leads')
         return context
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("lead_list")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("lead_list")}, user: {self.request.user}')
         if self.request.POST.get('add_lead'):
             return redirect(reverse('lead_creation'))
 
@@ -157,6 +192,10 @@ class OrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
         if self.request.session.get('lead_pk_to_be_processed'):
             context['lead'] = Lead.objects.get(pk=self.request.session.get('lead_pk_to_be_processed'))
         return context
+
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("order_creation")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if self.request.POST.get('delete_lead_link'):
@@ -239,6 +278,8 @@ class OrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
                                 lead.processed_at = now()
                                 lead.save()
                     self.request.session['lead_pk_to_be_processed'] = None
+                    info_logger.info(f'POST request, url: {reverse("order_creation")}, user: {self.request.user}, '
+                                     f'created order pk: {order.pk}')
                     return redirect(reverse('order_list'))
             else:
                 return render(self.request, self.template_name, context={'form': form})
@@ -254,7 +295,14 @@ class OrderDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     def get_object(self, queryset=None):
         return Order.objects.prefetch_related('orderedproduct_set').get(pk=self.kwargs.get('id'))
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("order_detail", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("order_detail", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
         if self.request.POST.get('update_order'):
             return redirect(reverse('order_update', kwargs={'id': self.kwargs.get('id')}))
 
@@ -272,7 +320,12 @@ class OrderListView(mixins.PermissionRequiredMixin, generic.ListView):
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Orders')
         return context
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("order_list")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("order_list")}, user: {self.request.user}')
         if self.request.POST.get('add_order'):
             return redirect(reverse('order_creation'))
 
@@ -293,7 +346,14 @@ class OrderUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         return reverse('order_detail', kwargs={'id': self.kwargs.get('id')})
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("order_update", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("order_update", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
         order = self.get_object()
         ordered_products = OrderedProduct.objects.filter(order_FK=order)
         old_status = order.status
@@ -375,6 +435,14 @@ class WebCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     def get_success_url(self):
         return reverse_lazy('web_detail', kwargs={'id': self.object.pk})
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("web_creation")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("web_creation")}, user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
+
 
 class WebDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     permission_required = 'crm_app.view_web'
@@ -383,7 +451,14 @@ class WebDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     query_pk_and_slug = True
     template_name = 'crm_app/web_detail.html'
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("web_detail", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("web_detail", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
         if self.request.POST.get('update_web'):
             return redirect(reverse('web_update', kwargs={'id': self.kwargs.get('id')}))
 
@@ -402,7 +477,12 @@ class WebListView(mixins.PermissionRequiredMixin, generic.ListView):
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Webs')
         return context
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("web_list")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("web_list")}, user: {self.request.user}')
         if self.request.POST.get('add_web'):
             return redirect(reverse('web_creation'))
         elif self.request.POST.get('web_pk') is not None:
@@ -423,6 +503,16 @@ class WebUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
     def get_object(self, queryset=None):
         return Web.objects.get(pk=self.kwargs.get('id'))
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("web_update", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("web_update", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
+
 
 class PaymentCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     permission_required = 'crm_app.add_paymentstoweb'
@@ -441,7 +531,14 @@ class PaymentCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
         initial['user_added'] = self.request.user
         return initial
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("payment_creation", kwargs={"id": self.kwargs.get("web_id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("payment_creation", kwargs={"id": self.kwargs.get("web_id")})}, '
+                         f'user: {self.request.user}')
         form = PaymentCreationForm(request.POST)
         if form.is_valid():
             form_data = form.cleaned_data
@@ -474,7 +571,14 @@ class PaymentDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     def get_object(self, queryset=None):
         return PaymentsToWeb.objects.select_related('web_FK').get(pk=self.kwargs.get('id'))
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("payment_detail", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("payment_detail", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
         if self.request.POST.get('update_payment'):
             return redirect(reverse('payment_update', kwargs={'id': self.kwargs.get('id')}))
 
@@ -491,6 +595,14 @@ class PaymentListView(mixins.PermissionRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Payments')
         return context
+
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("payment_list")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("payment_list")}, user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
 
 
 class PaymentUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView, generic.edit.DeletionMixin):
@@ -510,7 +622,14 @@ class PaymentUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView, gene
             return reverse('payment_delete', kwargs={'id': kwarg_id})
         return reverse('payment_detail', kwargs={'id': kwarg_id})
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("payment_update", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("payment_update", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
         payment_object = self.get_object()
         old_payment_sum = copy.copy(payment_object.payment_amount)
         web = payment_object.web_FK
@@ -538,6 +657,14 @@ class ProductCategoryCreationView(mixins.PermissionRequiredMixin, generic.Create
     def get_success_url(self):
         return reverse_lazy('product_category_detail', kwargs={'id': self.object.pk})
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("product_category_creation")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("product_category_creation")}, user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
+
 
 class ProductCategoryListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_productcategory'
@@ -553,7 +680,12 @@ class ProductCategoryListView(mixins.PermissionRequiredMixin, generic.ListView):
                             selected_menu='Product categories')
         return context
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("product_category_list")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("product_category_list")}, user: {self.request.user}')
         if self.request.POST.get('add_product_category'):
             return redirect(reverse('product_category_creation'))
 
@@ -568,7 +700,14 @@ class ProductCategoryDetailView(mixins.PermissionRequiredMixin, generic.DetailVi
     def get_object(self, queryset=None):
         return ProductCategory.objects.prefetch_related('product_set').get(pk=self.kwargs.get('id'))
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("product_category_list", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("product_category_list", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
         return redirect(reverse('product_category_update', kwargs={'id': self.kwargs.get('id')}))
 
 
@@ -586,6 +725,16 @@ class ProductCategoryUpdateView(mixins.PermissionRequiredMixin, generic.UpdateVi
     def get_success_url(self):
         return reverse('product_category_detail', kwargs={'id': self.kwargs.get('id')})
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("product_category_update", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(f'POST request, url: {reverse("product_category_update", kwargs={"id": self.kwargs.get("id")})}, '
+                         f'user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
+
 
 class ProductCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     permission_required = 'crm_app.add_product'
@@ -596,6 +745,18 @@ class ProductCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     def get_success_url(self):
         return reverse_lazy('product_detail', kwargs={'id': self.object.pk})
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("product_category_creation", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'POST request, url: {reverse("product_category_creation", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
+
 
 class ProductDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     permission_required = 'crm_app.view_product'
@@ -604,7 +765,17 @@ class ProductDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("product_category_detail", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'POST request, url: {reverse("product_category_detail", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}'
+        )
         return redirect(reverse('product_update', kwargs={'id': self.kwargs.get('id')}))
 
 
@@ -621,7 +792,14 @@ class ProductListView(mixins.PermissionRequiredMixin, generic.ListView):
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Products')
         return context
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("product_list")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'POST request, url: {reverse("product_list")}, user: {self.request.user}')
         if self.request.POST.get('add_product'):
             return redirect(reverse('product_creation'))
 
@@ -638,6 +816,18 @@ class ProductUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         return reverse('product_detail', kwargs={'id': self.kwargs.get('id')})
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("product_update", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'POST request, url: {reverse("product_update", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
+
 
 class OfferCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
     permission_required = 'crm_app.add_offer'
@@ -647,6 +837,17 @@ class OfferCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         return reverse('offer_detail', kwargs={'id': self.object.pk})
+
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("offer_creation")}, user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'POST request, url: {reverse("offer_creation")}, '
+            f'user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
 
 
 class OfferDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
@@ -659,7 +860,16 @@ class OfferDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     def get_object(self, queryset=None):
         return Offer.objects.select_related('web', 'product').get(pk=self.kwargs.get('id'))
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("offer_detail", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'POST request, url: {reverse("offer_detail", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
         if self.request.POST.get('update_offer'):
             return redirect(reverse('offer_update', kwargs={'id': self.kwargs.get('id')}))
         else:
@@ -679,7 +889,16 @@ class OfferListView(mixins.PermissionRequiredMixin, generic.ListView):
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Offers')
         return context
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("offer_list")}, '
+            f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("offer_list")}, '
+            f'user: {self.request.user}')
         if self.request.POST.get('add_offer'):
             return redirect(reverse('offer_creation'))
 
@@ -698,6 +917,18 @@ class OfferUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
     def get_success_url(self):
         return reverse('offer_detail', kwargs={'id': self.kwargs.get('id')})
 
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("offer_detail", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'POST request, url: {reverse("offer_detail", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
+
     # def post(self, request, *args, **kwargs):
     #     offer = Offer.objects.get(pk=self.kwargs.get(''))
     #     return redirect(reverse('offer_detail', kwargs={'id': self.kwargs.get('id')}))
@@ -709,6 +940,18 @@ class ProfileDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     template_name = 'crm_app/profile_detail.html'
     pk_url_kwarg = 'id'
     query_pk_and_slug = True
+
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("profile_detail", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("profile_detail", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
 
     # def get_object(self, queryset=None):
     #     return Profile.objects.select_related('user').get(self.kwargs.get('id'))
@@ -723,3 +966,15 @@ class ProfileListView(mixins.PermissionRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Users')
         return context
+
+    def get(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("profile_list")}, '
+            f'user: {self.request.user}')
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        info_logger.info(
+            f'GET request, url: {reverse("profile_list")}, '
+            f'user: {self.request.user}')
+        return super().post(request, *args, **kwargs)
