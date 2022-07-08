@@ -24,13 +24,13 @@
     {{ object.operator_assigned }}
 {% else %}
     No operator assigned
-{% endif %}
 </h3>
 {% if perms.crm_app.add_order %}
 <form method="post">
     {% csrf_token %}
     <button name="lead_id_from_button" type="submit" value="{{object.pk}}">Create order</button>
 </form>
+{% endif %}
 {% endif %}
 </body>
 </html>

@@ -5,6 +5,7 @@ from django.contrib.auth import login, authenticate, mixins
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
+from django.db.models import Sum, Count, Subquery, OuterRef, F
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import now
@@ -73,7 +74,7 @@ class RegisterView(generic.View):
             )
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('home_page')
+            return redirect('home_page', kwargs={'stat': 'prod'})
         return render(request, 'crm_app/registration.html', context={'form': form})
 
 
@@ -90,13 +91,50 @@ class UserLoginView(LoginView):
         return super().post(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('home_page')
+        return reverse('home_page', kwargs={'stat': 'prod'})
 
 
 class HomePageView(mixins.LoginRequiredMixin, generic.View):
-    def get(self, request):
-        info_logger.info(f'GET request, url: {reverse("home_page")}, user: {self.request.user}')
-        context = add_menu_to_context(context=dict(), user_role=self.request.user.profile.role, selected_menu='Main')
+    def get(self, request, *args, **kwargs):
+        info_logger.info(f'GET request, url: {reverse("home_page", kwargs={"stat": self.kwargs.get("stat")})}, '
+                         f'user: {self.request.user}')
+        statistics_by = self.kwargs.get('stat')
+        context = dict()
+        opers = []
+        if statistics_by == 'prod':
+            prods = OrderedProduct.objects. \
+                prefetch_related('product_FK'). \
+                values('product_FK'). \
+                annotate(total_sold=Sum('ordered_quantity')). \
+                order_by('-total_sold')
+            for p in prods:
+                p['product'] = Product.objects.get(pk=p['product_FK'])
+            context['statistics'] = prods
+            context['statistic_units'] = 'prod'
+        elif statistics_by == 'oper':
+            users = User.objects.all()
+            for user in users:
+                user_total_sales = 0
+                orders = Order.objects.filter(order_operator=user, status__in=['Delivered', 'Money_received'])
+                ordered_products = OrderedProduct.objects.select_related('order_FK'). \
+                    filter(order_FK__in=orders)
+                for ordered_product in ordered_products:
+                    user_total_sales += ordered_product.total_price()
+                if user_total_sales > 0:
+                    opers.append((float('{:2f}'.format(user_total_sales)), user))
+            context['statistics'] =sorted(opers, reverse=True)
+            context['statistic_units'] = 'oper'
+        elif statistics_by == 'web':
+            webs_stats = []
+            webs = Web.objects.all()
+            for web in webs:
+                leads_count = len(Lead.objects.filter(
+                    offer_FK__in=Offer.objects.filter(web=web)))
+                if leads_count > 0:
+                    webs_stats.append((leads_count, web))
+            context['statistics'] = sorted(webs_stats, key=lambda tup: tup[0], reverse=True)
+            context['statistic_units'] = 'web'
+        context = add_menu_to_context(context=context, user_role=self.request.user.profile.role, selected_menu='Main')
         return render(request, 'crm_app/home_page.html', context=context)
 
 
@@ -706,8 +744,9 @@ class ProductCategoryDetailView(mixins.PermissionRequiredMixin, generic.DetailVi
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        info_logger.info(f'POST request, url: {reverse("product_category_list", kwargs={"id": self.kwargs.get("id")})}, '
-                         f'user: {self.request.user}')
+        info_logger.info(
+            f'POST request, url: {reverse("product_category_list", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
         return redirect(reverse('product_category_update', kwargs={'id': self.kwargs.get('id')}))
 
 
@@ -726,13 +765,15 @@ class ProductCategoryUpdateView(mixins.PermissionRequiredMixin, generic.UpdateVi
         return reverse('product_category_detail', kwargs={'id': self.kwargs.get('id')})
 
     def get(self, request, *args, **kwargs):
-        info_logger.info(f'GET request, url: {reverse("product_category_update", kwargs={"id": self.kwargs.get("id")})}, '
-                         f'user: {self.request.user}')
+        info_logger.info(
+            f'GET request, url: {reverse("product_category_update", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        info_logger.info(f'POST request, url: {reverse("product_category_update", kwargs={"id": self.kwargs.get("id")})}, '
-                         f'user: {self.request.user}')
+        info_logger.info(
+            f'POST request, url: {reverse("product_category_update", kwargs={"id": self.kwargs.get("id")})}, '
+            f'user: {self.request.user}')
         return super().post(request, *args, **kwargs)
 
 

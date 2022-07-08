@@ -11,7 +11,11 @@
 {% for menu_point in menu %}
 <ul>
     <li>
+        {% if menu_point.title == 'Main' %}
+        <a href="{% url 'home_page' 'prod' %}">{{ menu_point.title }}</a>
+        {% else %}
         <a href="{% url menu_point.url_address %}">{{ menu_point.title }}</a>
+        {% endif %}
         {% if menu_point.title == selected_menu %}
          SELECTED
         {% endif %}

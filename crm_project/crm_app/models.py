@@ -114,6 +114,9 @@ class Lead(models.Model):
     def __str__(self):
         return f'Lead {self.pk}'
 
+    class Meta:
+        ordering = ['-created_at']
+
 
 class PaymentsToWeb(models.Model):
     """Used to keep track of the payments made to the Webs"""
@@ -185,7 +188,7 @@ class OrderedProduct(models.Model):
                                                 verbose_name='Ordered product total price')
 
     def __str__(self):
-        return f'{self.product_FK.name}: {self.product_FK.name}'
+        return f'{self.product_FK.product_name}: {self.product_FK.product_name}'
 
     def total_price(self):
         return float(self.ordered_product_price) * float(self.ordered_quantity)

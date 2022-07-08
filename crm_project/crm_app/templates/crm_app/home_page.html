@@ -7,6 +7,72 @@
 </head>
 <body>
 <h1>Welcome to the home page! {{request.user.username}}</h1>
-<button><a href="{% url 'logout' %}">logout</a></button>
+Show top: <a href="{% url 'home_page' 'prod' %}">Products</a> |
+<a href="{% url 'home_page' 'oper' %}">Operators</a> |
+<a href="{% url 'home_page' 'web' %}">Webs</a>
+{% if statistic_units == 'prod' %}
+<h2>Top selling products.</h2>
+<table border="solid black">
+    <tr>
+        <th>Rank</th>
+        <th>Product name</th>
+        <th>Product image</th>
+        <th>Total sold</th>
+    </tr>
+    {% for unit in statistics %}
+    <tr>
+    <td>{{ forloop.counter  }}</td>
+    <td><a href="{% url 'product_detail' unit.product_FK %}">{{ unit.product.product_name }}</a></td>
+    {% if unit.product.product_image %}
+        <td><img width="100" src="{{ unit.product.product_image.url }}"></td>
+    {% else %}
+        <td>No image</td>
+    {% endif %}
+    <td>{{ unit.total_sold }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% elif statistic_units == 'oper' %}
+<h2>Top operators.</h2>
+<table border="solid black">
+    <tr>
+        <th>Rank</th>
+        <th>User</th>
+        <th>Total sales</th>
+    </tr>
+    {% for unit in statistics %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        {% if perms.crm_app.view_profile %}
+        <td><a href="{% url 'profile_detail' unit.1.profile.pk %}">{{ unit.1 }}</a></td>
+        {% else %}
+        <td>{{ unit.1 }}</td>
+        {% endif %}
+        <td>{{ unit.0 }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% elif statistic_units == 'web' %}
+<h2>Top webs.</h2>
+<table border="solid black">
+    <tr>
+        <th>Rank</th>
+        <th>Web</th>
+        <th>Leads count</th>
+    </tr>
+    {% for unit in statistics %}
+    <tr>
+        <td>{{ forloop.counter }}
+        {% if perms.crm_app.view_web %}
+        <td><a href="{% url 'web_detail' unit.1.pk %}">{{ unit.1 }}</a></td>
+        {% else %}
+        <td>{{ unit.1 }}</td>
+        {% endif %}
+        <td>{{ unit.0 }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
 </body>
 </html>
