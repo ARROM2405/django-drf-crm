@@ -12,6 +12,7 @@ from django.utils.timezone import now
 from django.views import generic
 from django.db import transaction
 from django.http import HttpResponse
+import pprint
 
 from .forms import *
 from .models import *
@@ -190,9 +191,22 @@ class LeadListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_lead'
     model = Lead
     template_name = 'crm_app/lead_list.html'
+    paginate_by = 20
 
     def get_queryset(self):
-        return Lead.objects.select_related('offer_FK').all()
+        return Lead.objects.values(
+            'lead_id',
+            'status',
+            'created_at',
+            'processed_at',
+            'operator_assigned',
+            'operator_assigned__user__username',
+            'offer_FK__web__web_id',
+            'offer_FK__web__web_name',
+            'offer_FK__product__product_id',
+            'offer_FK__product__product_name',
+
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -349,6 +363,7 @@ class OrderListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_order'
     model = Order
     template_name = 'crm_app/order_list.html'
+    paginate_by = 30
 
     def get_queryset(self):
         return Order.objects.select_related('order_operator').all()
@@ -506,6 +521,7 @@ class WebListView(mixins.PermissionRequiredMixin, generic.ListView):
     model = Web
     context_object_name = 'webs'
     template_name = 'crm_app/web-list.html'
+    paginate_by = 20
 
     def get_queryset(self):
         return Web.objects.all().order_by('web_name')
@@ -570,7 +586,7 @@ class PaymentCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
         return initial
 
     def get(self, request, *args, **kwargs):
-        info_logger.info(f'GET request, url: {reverse("payment_creation", kwargs={"id": self.kwargs.get("web_id")})}, '
+        info_logger.info(f'GET request, url: {reverse("payment_creation", kwargs={"web_id": self.kwargs.get("web_id")})}, '
                          f'user: {self.request.user}')
         return super().get(request, *args, **kwargs)
 
@@ -625,6 +641,7 @@ class PaymentListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_paymentstoweb'
     model = PaymentsToWeb
     template_name = 'crm_app/payment_list.html'
+    paginate_by = 20
 
     def get_queryset(self):
         return PaymentsToWeb.objects.select_related('web_FK').all()
@@ -708,6 +725,7 @@ class ProductCategoryListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_productcategory'
     model = ProductCategory
     template_name = 'crm_app/product_category_list.html'
+    paginate_by = 20
 
     def get_queryset(self):
         return ProductCategory.objects.prefetch_related('product_set').all()
@@ -824,6 +842,7 @@ class ProductListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_product'
     model = Product
     template_name = 'crm_app/product_list.html'
+    paginate_by = 20
 
     def get_queryset(self):
         return Product.objects.select_related('product_category').all()
@@ -1002,6 +1021,7 @@ class ProfileListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_profile'
     model = Profile
     template_name = 'crm_app/profile_list.html'
+    paginate_by = 20
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -177,6 +177,9 @@ class Order(models.Model):
     def __str__(self):
         return f'Order {self.pk}'
 
+    class Meta:
+        ordering = ['-order_created']
+
 
 class OrderedProduct(models.Model):
     """Keeping track of the  products added to the order. Union model between Order and Product models"""

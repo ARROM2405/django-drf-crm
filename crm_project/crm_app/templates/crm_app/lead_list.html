@@ -26,10 +26,10 @@
     </tr>
     {% for lead in object_list %}
     <tr>
-    <td><a href="{% url 'lead_detail' lead.pk %}">{{ lead.pk }}</a></td>
+    <td><a href="{% url 'lead_detail' lead.lead_id %}">{{ lead.lead_id }}</a></td>
     <td>{{ lead.status }}</td>
-    <td><a href="{% url 'web_detail' lead.offer_FK.web.pk %}">{{ lead.offer_FK.web }}</a></td>
-    <td><a href="{% url 'web_detail' lead.offer_FK.product.pk %}">{{ lead.offer_FK.product }}</a></td>
+    <td><a href="{% url 'web_detail' lead.offer_FK__web__web_id %}">{{ lead.offer_FK__web__web_name }}</a></td>
+    <td><a href="{% url 'web_detail' lead.offer_FK__product__product_id %}">{{ lead.offer_FK__product__product_name }}</a></td>
     <td>{{ lead.created_at }}</td>
     {% if lead.processed_at %}
     <td>{{ lead.processed_at }}</td>
@@ -37,7 +37,7 @@
     <td>Not processed</td>
     {% endif %}
     {% if lead.operator_assigned %}
-    <td>{{lead.operator_assigned}}</td>
+    <td>{{ lead.operator_assigned }}</td>
     {% else %}
     <td>Not assigned</td>
     {% endif %}
@@ -47,5 +47,6 @@
 {% else %}
 <h3>No yet leads created</h3>
 {% endif %}
+{% include 'crm_app/pagination_navigation.html' %}
 </body>
 </html>
