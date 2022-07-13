@@ -1,5 +1,3 @@
-import pytest
-
 from crm_app.tests.fixtures import *
 
 
