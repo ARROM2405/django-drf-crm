@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.urls import reverse
 from django.core.validators import MinValueValidator, RegexValidator
 
 
@@ -14,7 +13,7 @@ class Profile(models.Model):
         ('Test role', 'TR')
 
              ]
-    user = models.OneToOneField(to=User, on_delete=models.CASCADE, verbose_name='Refered user')
+    user = models.OneToOneField(to=User, on_delete=models.CASCADE, verbose_name='Referred user')
     role = models.CharField(max_length=30, choices=ROLES, default='Test role', verbose_name='Role')
     blocked = models.BooleanField(default=False, verbose_name='Blocked user')
 
@@ -125,7 +124,8 @@ class PaymentsToWeb(models.Model):
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)],
                                          verbose_name='Amount paid')
     payment_date = models.DateTimeField(auto_now_add=True, verbose_name='Payment date and time')
-    user_added = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True, verbose_name='Added by existing user (login)')
+    user_added = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True,
+                                   verbose_name='Added by existing user (login)')
 
     def __str__(self):
         return f'{self.web_FK}, {self.payment_amount}'
@@ -159,8 +159,8 @@ class Order(models.Model):
     order_created = models.DateTimeField(auto_now_add=True, verbose_name='Order created date and time')
     lead_FK = models.ForeignKey(to=Lead, default=None, on_delete=models.SET_NULL, null=True, verbose_name='Lead FK')
     customer_first_name = models.CharField(max_length=25, verbose_name='Customer first name')
-    customer_last_name = models.CharField(max_length=25, blank=True, null=True, verbose_name='Customer last name')
-    status = models.CharField(max_length=30, choices=ORDER_STATUSES, default='New order', verbose_name='Order Status')
+    customer_last_name = models.CharField(max_length=25, verbose_name='Customer last name')
+    status = models.CharField(max_length=30, choices=ORDER_STATUSES, default='New order', verbose_name='Order status')
     sent_date = models.DateField(verbose_name='Send date for the order')
     phone_regex_validator = RegexValidator(regex=r'\d{3}-\d{3}-\d{3}',
                                            message='Phone should be entered in a 123-456-789 format')
@@ -191,13 +191,21 @@ class OrderedProduct(models.Model):
                                                 verbose_name='Ordered product total price')
 
     def __str__(self):
-        return f'{self.product_FK.product_name}: {self.product_FK.product_name}'
+        if self.order_FK is None:
+            order = 'Deleted order'
+        else:
+            order = self.order_FK
+        if self.product_FK is None:
+            product = 'Deleted product'
+        else:
+            product = self.product_FK
+        return f'{order}: {product} - {self.ordered_quantity}'
 
     def total_price(self):
         return float(self.ordered_product_price) * float(self.ordered_quantity)
 
 
-class Invoice(models.Model):
-    """Invoice generated file for the order"""
-    invoice_number = models.AutoField(primary_key=True, verbose_name='Invoice number')
-    order_FK = models.ForeignKey(to=Order, on_delete=models.CASCADE, verbose_name='Order referred')
+# class Invoice(models.Model):
+#     """Invoice generated file for the order"""
+#     invoice_number = models.AutoField(primary_key=True, verbose_name='Invoice number')
+#     order_FK = models.ForeignKey(to=Order, on_delete=models.CASCADE, verbose_name='Order referred')
