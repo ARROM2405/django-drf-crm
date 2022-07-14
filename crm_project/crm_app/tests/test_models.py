@@ -322,3 +322,11 @@ def test_ordered_product_str_method(create_order, create_product_category, creat
                                                                f' - {test_ordered_product_with_order_and_product.ordered_quantity}'
     assert str(test_ordered_product_no_order_no_product) == f'Deleted order: Deleted product - ' \
                                                             f'{test_ordered_product_no_order_no_product.ordered_quantity}'
+
+
+@pytest.mark.django_db
+def test_ordered_product_total_price_method(create_ordered_product):
+    price = 5.5
+    ordered_quantity = 3
+    test_ordered_product = create_ordered_product(ordered_product_price=price, ordered_quantity=ordered_quantity)
+    assert test_ordered_product.total_price() == float(price) * float(ordered_quantity)
