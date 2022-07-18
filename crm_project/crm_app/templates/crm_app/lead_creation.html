@@ -8,7 +8,7 @@
 {% include 'crm_app/menu.html' %}
 <a href="{% url 'lead_list' %}">Back to lead list</a>
 <h1>Lead creation</h1>
-<form method="post">
+<form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit">new lead</button>

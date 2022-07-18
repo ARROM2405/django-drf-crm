@@ -75,7 +75,7 @@ class RegisterView(generic.View):
             )
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('home_page', kwargs={'stat': 'prod'})
+            return redirect(reverse('home_page', kwargs={'stat': 'prod'}))
         return render(request, 'crm_app/registration.html', context={'form': form})
 
 
@@ -162,7 +162,13 @@ class LeadCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
         form.instance.lead_cost = offer.click_cost
         form.save()
         info_logger.info(f'POST request, url: {reverse("lead_creation")}, user: {self.request.user}, form_valid')
-        return super().form_valid(form)
+        with transaction.atomic():
+            web = offer.web
+            old_balance = web.balance
+            new_balance = old_balance + offer.click_cost
+            web.balance = new_balance
+            web.save(update_fields=['balance'])
+            return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('lead_list')
@@ -806,7 +812,7 @@ class ProductCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
 
     def get(self, request, *args, **kwargs):
         info_logger.info(
-            f'GET request, url: {reverse("product_category_creation", kwargs={"id": self.kwargs.get("id")})}, '
+            f'GET request, url: {reverse("product_creation")}, '
             f'user: {self.request.user}')
         return super().get(request, *args, **kwargs)
 

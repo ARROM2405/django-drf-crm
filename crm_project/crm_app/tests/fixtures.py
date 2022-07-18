@@ -1,20 +1,24 @@
 import datetime
-
 import pytest
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+
 from ..models import *
 
 
 @pytest.fixture
-def create_user(db, django_user_model):
+def create_user(db):
     def make_user(
             username='test_username',
             password='test_password'
     ):
-        return django_user_model.objects.create(
+        user = User.objects.create(
             username=username,
-            password=password
+            password=password,
         )
-
+        user.set_password(password)
+        user.save()
+        return user
     return make_user
 
 
@@ -23,14 +27,19 @@ def create_profile(db, create_user):
     def make_profile(
             username='test_username',
             password='test_password',
-            role='Operator'
+            role='Administrator',
+            perm: Permission = None
     ):
         user = create_user(username=username, password=password)
+        if perm:
+            user.user_permissions.add(perm)
+            # ct = ContentType.objects.get(app_label='crm_app', model='lead')
+            # perm = Permission.objects.create(codename='create_lead', name='Can add lead', content_type=ct)
+            # user.user_permissions.add(perm)
         return Profile.objects.create(
             user=user,
             role=role
         )
-
     return make_profile
 
 

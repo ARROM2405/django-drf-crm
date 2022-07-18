@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+
+from django.urls import reverse, reverse_lazy
 from dotenv import load_dotenv
 import os
 import logging.config
@@ -168,3 +170,4 @@ LOGGING = {
     }
 }
 
+LOGIN_URL = reverse_lazy('login')
