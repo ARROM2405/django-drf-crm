@@ -4,26 +4,31 @@ from crm_app.forms import *
 from fixtures import *
 
 
+@pytest.mark.django_db
 def test_registration_form_fields_list():
     form = RegistrationForm()
     assert list(form.fields.keys()) == ['username', 'password1', 'password2']
 
 
+@pytest.mark.django_db
 def test_registration_form_username_field_label():
     form = RegistrationForm()
     assert form['username'].label == 'type in username'
 
 
+@pytest.mark.django_db
 def test_web_creation_form_fields():
     form = WebCreationForm()
     assert list(form.fields.keys()) == ['web_name', 'web_description', 'web_api_key', 'balance']
 
 
+@pytest.mark.django_db
 def test_lead_creation_form_fields():
     form = LeadCreationForm()
     assert list(form.fields.keys()) == ['offer_FK', 'contact_phone', 'customer_first_name', 'customer_last_name']
 
 
+@pytest.mark.django_db
 def test_lead_creation_form_help_text():
     form = LeadCreationForm()
     assert form['contact_phone'].help_text == 'format 123-123-123'
@@ -46,32 +51,38 @@ def test_lead_creation_form_form_is_valid_method(create_web, create_product_cate
     assert form.is_valid()
 
 
+@pytest.mark.django_db
 def test_product_category_creation_form_fields():
     form = ProductCategoryCreationForm()
     assert list(form.fields.keys()) == ['category_name']
 
 
+@pytest.mark.django_db
 def test_product_creation_form_fields():
     form = ProductCreationForm()
     assert list(form.fields.keys()) == ['product_name', 'product_price', 'product_category', 'product_description',
                                         'product_image', 'quantity_available']
 
 
+@pytest.mark.django_db
 def test_product_creation_form_label():
     form = ProductCreationForm()
     assert form['product_category'].label == 'Product category'
 
 
+@pytest.mark.django_db
 def test_offer_creation_form_fields():
     form = OfferCreationForm()
     assert list(form.fields.keys()) == ['web', 'product', 'click_cost', 'website_url']
 
 
+@pytest.mark.django_db
 def test_payment_creation_form_fields():
     form = PaymentCreationForm()
     assert list(form.fields.keys()) == ['web_FK', 'payment_amount']
 
 
+@pytest.mark.django_db
 def test_order_creation_form_fields():
     form = OrderCreationForm()
     assert list(form.fields.keys()) == ['customer_first_name', 'customer_last_name', 'status', 'sent_date',
