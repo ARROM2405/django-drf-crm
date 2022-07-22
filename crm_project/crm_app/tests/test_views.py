@@ -329,12 +329,12 @@ def test_post_request_redirect_url_and_lead_cost_lead_creation(create_profile, c
     test_offer = create_offer(product=test_product, web=test_web)
     client.login(username=test_profile.user.username, password=test_password)
     offer_fk = test_offer.pk
-    contact_phone = '111-111-111'
+    contact_phone = '123-123-123'
     customer_fn = 'test_fn'
     customer_ln = 'test_ln'
-    response = client.post(testing_url, data={'offer_FK': test_offer.pk,
+    response = client.post(testing_url, data={'offer_FK': offer_fk,
                                               'contact_phone:': contact_phone,
-                                              'customer_first_n˜ame': customer_fn,
+                                              'customer_first_name': customer_fn,
                                               'customer_last_name': customer_ln},
                            )
     pprint.pprint(response.content)
