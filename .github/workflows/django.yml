@@ -48,7 +48,9 @@ jobs:
 #         sudo systemctl start postgresql
 #         sudo systemctl enable postgresql
     - name: Run migrations
-      run: python crm_project.manage.py migrate
+      run: |
+        cd crm_project
+        python manage.py migrate
     - name: Run Tests
       run: |
         export DJANGO_SETTINGS_MODULE="crm_project.settings"
