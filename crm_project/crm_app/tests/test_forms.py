@@ -1,7 +1,7 @@
 import pytest
 
 from crm_app.forms import *
-from crm_app.tests.fixtures import *
+from fixtures import *
 
 
 def test_registration_form_fields_list():

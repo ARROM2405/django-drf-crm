@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 from django.core.files import File
 from django.shortcuts import reverse
-from crm_app.tests.fixtures import *
+from fixtures import *
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy

@@ -1,4 +1,5 @@
-from crm_app.tests.fixtures import *
+import pytest
+from fixtures import *
 
 
 # Tests for Profile model
