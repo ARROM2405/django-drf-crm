@@ -2,7 +2,6 @@ import pprint
 from unittest import mock
 
 import pytest
-from django.contrib import auth
 from django.core.files import File
 from django.shortcuts import reverse
 from crm_app.tests.fixtures import *
