@@ -29,4 +29,4 @@ jobs:
 #        pip install -r requirements.txt
     - name: Run Tests
       run: |
-        pytest -v
+        pytest crm_project/crm_app -s -v
