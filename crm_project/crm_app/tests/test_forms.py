@@ -1,4 +1,7 @@
+import pytest
+
 from crm_app.forms import *
+from crm_app.tests.fixtures import *
 
 
 def test_registration_form_fields_list():
@@ -24,6 +27,23 @@ def test_lead_creation_form_fields():
 def test_lead_creation_form_help_text():
     form = LeadCreationForm()
     assert form['contact_phone'].help_text == 'format 123-123-123'
+
+
+@pytest.mark.django_db
+def test_lead_creation_form_form_is_valid_method(create_web, create_product_category, create_product, create_offer):
+    test_web = create_web()
+    test_product_category = create_product_category()
+    test_product = create_product(product_category=test_product_category)
+    test_offer = create_offer(product=test_product, web=test_web)
+    form = LeadCreationForm(
+        data={
+            'offer_FK': test_offer.pk,
+            'contact_phone': '111-111-111',
+            'customer_first_name': 'test_fn',
+            'customer_last_name': 'test_ln'
+        }
+    )
+    assert form.is_valid()
 
 
 def test_product_category_creation_form_fields():

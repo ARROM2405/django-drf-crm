@@ -28,11 +28,12 @@ def create_profile(db, create_user):
             username='test_username',
             password='test_password',
             role='Administrator',
-            perm: Permission = None
+            perm: list = None
     ):
         user = create_user(username=username, password=password)
         if perm:
-            user.user_permissions.add(perm)
+            for one_perm in perm:
+                user.user_permissions.add(one_perm)
             # ct = ContentType.objects.get(app_label='crm_app', model='lead')
             # perm = Permission.objects.create(codename='create_lead', name='Can add lead', content_type=ct)
             # user.user_permissions.add(perm)

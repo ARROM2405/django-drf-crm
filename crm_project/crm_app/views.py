@@ -148,7 +148,7 @@ class UserLogoutView(LogoutView):
 
 
 class LeadCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
-    permission_required = 'crm_app.create_lead'
+    permission_required = 'crm_app.add_lead'
     model = Lead
     form_class = LeadCreationForm
     template_name = 'crm_app/lead_creation.html'
@@ -269,8 +269,9 @@ class OrderCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
                          form_data.get('product_2') == form_data.get('product_3')):
                     form.add_error(f'product_1',
                                    f'Products are duplicated. Please pick unique SKU for each field, '
-                                   f'or leave them empty.')
-                    return render(request, self.template_name, context={'form': form})
+                                   f'or leave others empty.')
+                    return render(request, self.template_name, context={'form': form, 'lead':
+                        Lead.objects.get(pk=self.request.session.get('lead_pk_to_be_processed'))})
 
                 for product_field, quantity_ordered_field in {
                     'product_1': 'product_1_quantity',
@@ -481,7 +482,7 @@ class OrderUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
 
 
 class WebCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
-    permission_required = 'crm_app.create_web'
+    permission_required = 'crm_app.add_web'
     model = Web
     form_class = WebCreationForm
     template_name = 'crm_app/web_creation.html'
@@ -597,7 +598,7 @@ class PaymentCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        info_logger.info(f'POST request, url: {reverse("payment_creation", kwargs={"id": self.kwargs.get("web_id")})}, '
+        info_logger.info(f'POST request, url: {reverse("payment_creation", kwargs={"web_id": self.kwargs.get("web_id")})}, '
                          f'user: {self.request.user}')
         form = PaymentCreationForm(request.POST)
         if form.is_valid():
@@ -763,13 +764,13 @@ class ProductCategoryDetailView(mixins.PermissionRequiredMixin, generic.DetailVi
         return ProductCategory.objects.prefetch_related('product_set').get(pk=self.kwargs.get('id'))
 
     def get(self, request, *args, **kwargs):
-        info_logger.info(f'GET request, url: {reverse("product_category_list", kwargs={"id": self.kwargs.get("id")})}, '
+        info_logger.info(f'GET request, url: {reverse("product_category_detail", kwargs={"id": self.kwargs.get("id")})}, '
                          f'user: {self.request.user}')
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         info_logger.info(
-            f'POST request, url: {reverse("product_category_list", kwargs={"id": self.kwargs.get("id")})}, '
+            f'POST request, url: {reverse("product_category_update", kwargs={"id": self.kwargs.get("id")})}, '
             f'user: {self.request.user}')
         return redirect(reverse('product_category_update', kwargs={'id': self.kwargs.get('id')}))
 
@@ -786,7 +787,7 @@ class ProductCategoryUpdateView(mixins.PermissionRequiredMixin, generic.UpdateVi
         return ProductCategory.objects.get(pk=self.kwargs.get('id'))
 
     def get_success_url(self):
-        return reverse('product_category_detail', kwargs={'id': self.kwargs.get('id')})
+        return reverse('product_category_update', kwargs={'id': self.kwargs.get('id')})
 
     def get(self, request, *args, **kwargs):
         info_logger.info(
@@ -818,7 +819,7 @@ class ProductCreationView(mixins.PermissionRequiredMixin, generic.CreateView):
 
     def post(self, request, *args, **kwargs):
         info_logger.info(
-            f'POST request, url: {reverse("product_category_creation", kwargs={"id": self.kwargs.get("id")})}, '
+            f'POST request, url: {reverse("product_creation")}, '
             f'user: {self.request.user}')
         return super().post(request, *args, **kwargs)
 

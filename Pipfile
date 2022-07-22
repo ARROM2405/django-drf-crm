@@ -9,6 +9,7 @@ pytest-django = "*"
 djangorestframework = "*"
 psycopg2 = "*"
 python-dotenv = "*"
+faker = "*"
 
 [dev-packages]
 

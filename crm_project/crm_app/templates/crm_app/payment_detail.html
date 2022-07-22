@@ -14,7 +14,7 @@
 <h3>Paid at: {{ object.payment_date }}</h3>
 <h3>Paid amount: {{ object.payment_amount }}</h3>
 <h3>Created by: <a href="{% url 'profile_detail' object.user_added.pk %}">{{ object.user_added }}</a></h3>
-{% if perms.crm_app.change_paymenttoweb %}
+{% if perms.crm_app.change_paymentstoweb %}
 <form method="post">
     {% csrf_token %}
     <button type="submit" name="update_payment" value="True">Update/Delete payment</button>

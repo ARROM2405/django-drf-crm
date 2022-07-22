@@ -186,7 +186,7 @@ class OrderedProduct(models.Model):
     ordered_product_id = models.AutoField(primary_key=True, verbose_name='ID')
     order_FK = models.ForeignKey(to=Order, on_delete=models.SET_NULL, null=True, verbose_name='Order FK')
     product_FK = models.ForeignKey(to=Product, on_delete=models.SET_NULL, null=True, verbose_name='Product FK')
-    ordered_quantity = models.IntegerField(validators=[MinValueValidator(0)], verbose_name='Ordered quantity')
+    ordered_quantity = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Ordered quantity')
     ordered_product_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)],
                                                 verbose_name='Ordered product total price')
 

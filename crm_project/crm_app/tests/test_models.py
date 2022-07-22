@@ -304,7 +304,7 @@ def test_ordered_product_field_verbose_name(create_ordered_product):
 @pytest.mark.django_db
 def test_ordered_product_max_digits_decimal_places_validators(create_ordered_product):
     test_ordered_product = create_ordered_product()
-    assert test_ordered_product._meta.get_field('ordered_quantity').validators[0] == MinValueValidator(0)
+    assert test_ordered_product._meta.get_field('ordered_quantity').validators[0] == MinValueValidator(1)
     assert test_ordered_product._meta.get_field('ordered_product_price').validators[0] == MinValueValidator(0)
     assert test_ordered_product._meta.get_field('ordered_product_price').max_digits == 10
     assert test_ordered_product._meta.get_field('ordered_product_price').decimal_places == 2
