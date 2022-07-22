@@ -61,5 +61,5 @@ jobs:
       env:
           DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
-          python -m pytest tests/
+          python -m pytest
 
