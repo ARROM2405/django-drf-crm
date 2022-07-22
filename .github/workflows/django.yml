@@ -30,6 +30,10 @@ jobs:
     - name: SECRET_KEY dummy generate
       run: |
         echo "django_secret_key=topsecretvalue" >> $GITHUB_ENV
+    - name: start postgres
+      run: |
+        sudo systemctl start postgresql
+        sudo systemctl enable postgresql
     - name: Run Tests
       run: |
         export DJANGO_SETTINGS_MODULE="crm_project.settings"
