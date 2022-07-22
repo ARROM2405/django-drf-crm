@@ -63,5 +63,5 @@ jobs:
       run: |
           export PYTHONPATH=$PYTHONPATH:$PYTHONPATH/crm_project/
           export DJANGO_SETTINGS_MODULE=crm_project.settings
-          pytest crm_project/crm_app -s -v
+          python pytest
 
