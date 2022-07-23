@@ -40,9 +40,9 @@ jobs:
         pipenv install --system
 #        python -m pip install --upgrade pip
 #        pip install -r requirements.txt
-#     - name: SECRET_KEY dummy generate
-#       run: |
-#         echo "django_secret_key=topsecretvalue" >> $GITHUB_ENV
+    - name: SECRET_KEY dummy generate
+      run: |
+        echo "django_secret_key=topsecretvalue" >> $GITHUB_ENV
         
 #     - name: start postgres
 #       run: |
@@ -69,7 +69,6 @@ jobs:
         DB_ENGINE: django.db.backends.postgresql_psycopg2
 #         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
-          echo "django_secret_key=topsecretvalue" >> $GITHUB_ENV
           cd crm_project
           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
           export DJANGO_SETTINGS_MODULE=crm_project.settings
