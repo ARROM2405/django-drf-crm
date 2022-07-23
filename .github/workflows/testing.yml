@@ -15,11 +15,11 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: ${{ secrets.DB_USERNAME }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_USERNAME }}
-          POSTGRES_DB: postgres
+         POSTGRES_USER: postgres
+         POSTGRES_PASSWORD: postgres
+         POSTGRES_DB: github_actions
         ports: 
-        - 5432:5432
+         - 5432:5432 
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       max-parallel: 4
@@ -40,9 +40,9 @@ jobs:
         pipenv install --system
 #        python -m pip install --upgrade pip
 #        pip install -r requirements.txt
-    - name: SECRET_KEY dummy generate
-      run: |
-        echo "django_secret_key=topsecretvalue" >> $GITHUB_ENV
+#     - name: SECRET_KEY dummy generate
+#       run: |
+#         echo "django_secret_key=topsecretvalue" >> $GITHUB_ENV
         
 #     - name: start postgres
 #       run: |
@@ -60,7 +60,14 @@ jobs:
 
     - name: Test with pytest
       env:
-          DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        DB_NAME: github_actions
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_ENGINE: django.db.backends.postgresql_psycopg2
+#         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
           cd crm_project
           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
