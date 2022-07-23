@@ -58,12 +58,12 @@ jobs:
 #         export DJANGO_SETTINGS_MODULE="crm_project.settings"
 #         pytest crm_project/crm_app -s -v
 
-#     - name: Test with pytest
-#       env:
-#           DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
-#       run: |
-#           cd crm_project
-#           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
-#           export DJANGO_SETTINGS_MODULE=crm_project.settings
-#           pytest         
+    - name: Test with pytest
+      env:
+          DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
+      run: |
+          cd crm_project
+          export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
+          export DJANGO_SETTINGS_MODULE=crm_project.settings
+          pytest         
 
