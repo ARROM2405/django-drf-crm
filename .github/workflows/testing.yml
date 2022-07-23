@@ -60,7 +60,7 @@ jobs:
 
     - name: Test with pytest
       env:
-        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+
         DB_NAME: github_actions
         DB_USER: postgres
         DB_PASSWORD: postgres
@@ -69,6 +69,7 @@ jobs:
         DB_ENGINE: django.db.backends.postgresql_psycopg2
 #         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
+          echo "django_secret_key=topsecretvalue" >> $GITHUB_ENV
           cd crm_project
           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
           export DJANGO_SETTINGS_MODULE=crm_project.settings
