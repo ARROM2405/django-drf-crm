@@ -62,11 +62,11 @@ jobs:
       env:
 
         DB_NAME: github_actions
-        DB_USER: postgres
+        USER: postgres
         DB_PASSWORD: postgres
         DB_HOST: localhost
         DB_PORT: 5432
-        DB_ENGINE: django.db.backends.postgresql_psycopg2
+        DB_ENGINE: django.db.backends.postgresql
         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
           cd crm_project
