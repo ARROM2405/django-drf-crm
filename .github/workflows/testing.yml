@@ -62,6 +62,10 @@ jobs:
           DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
-          export DJANGO_SETTINGS_MODULE=crm_project.settings
+          echo ############################
+          echo $PYTHONPATH
+          echo ############################
           pytest
+#         export DJANGO_SETTINGS_MODULE=crm_project.settings
+          
 
