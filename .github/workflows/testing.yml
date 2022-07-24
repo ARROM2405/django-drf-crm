@@ -59,16 +59,17 @@ jobs:
 #         pytest crm_project/crm_app -s -v
 
     - name: Test with pytest
-      env:
+#       env:
 #         DEBUG: "0"
-        name: github_actions
-        user: postgres
-        password: postgres
-        HOST: localhost
-        PORT: 5432
-        ENGINE: django.db.backends.postgresql_psycopg2
+#         name: github_actions
+#         user: postgres
+#         password: postgres
+#         HOST: localhost
+#         PORT: 5432
+#         ENGINE: django.db.backends.postgresql_psycopg2
 #         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
+          conn = psycopg2.connect(database="github_actions", user="postgres", password="postgres", host="localhost", port="5432")
           cd crm_project
           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
           export DJANGO_SETTINGS_MODULE=crm_project.settings
