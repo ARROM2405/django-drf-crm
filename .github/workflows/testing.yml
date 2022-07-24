@@ -61,11 +61,11 @@ jobs:
     - name: Test with pytest
       env:
         DEBUG: "0"
-        POSTGRES_DB: github_actions
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
+        NAME: github_actions
+        USER: postgres
+        PASSWORD: postgres
 #         DB_HOST: localhost
-        POSTGRES_PORT: 5432
+        PORT: 5432
 #         DB_ENGINE: django.db.backends.postgresql
 #         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
