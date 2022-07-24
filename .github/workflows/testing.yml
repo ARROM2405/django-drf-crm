@@ -62,8 +62,8 @@ jobs:
       env:
         DEBUG: "0"
         NAME: github_actions
-        USER: postgres
-        PASSWORD: postgres
+        DB_USER: postgres
+        DB_PASSWORD: postgres
 #         DB_HOST: localhost
         PORT: 5432
 #         DB_ENGINE: django.db.backends.postgresql
