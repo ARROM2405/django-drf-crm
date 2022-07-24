@@ -62,9 +62,9 @@ jobs:
       env:
 #         DEBUG: "0"
         NAME: github_actions
-        DB_USER: postgres
-        DB_PASSWORD: postgres
-        DB_HOST: localhost
+        USER: postgres
+        PASSWORD: postgres
+        HOST: localhost
         PORT: 5432
 #         DB_ENGINE: django.db.backends.postgresql
 #         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
