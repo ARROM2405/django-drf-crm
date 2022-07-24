@@ -10,21 +10,40 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+    env:
+      PSYCOPG2_TESTDB: postgres
+      PSYCOPG2_TESTDB_HOST: 127.0.0.1
+      PSYCOPG2_TESTDB_USER: postgres
+      PSYCOPG2_TESTDB_PASSWORD: password
+
     services:
-      postgres:
-        image: postgres:latest
+      postgresql:
+        image: postgres:${{ matrix.postgres }}
         env:
-         POSTGRES_USER: postgres
-         POSTGRES_PASSWORD: postgres
-         POSTGRES_DB: github_actions
-        ports: 
-         - 5432:5432 
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+#     services:
+#       postgres:
+#         image: postgres:latest
+#         env:
+#          POSTGRES_USER: postgres
+#          POSTGRES_PASSWORD: postgres
+#          POSTGRES_DB: github_actions
+#         ports: 
+#          - 5432:5432 
+#         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.9]
+       python-version: [3.9]
         
     steps:
     - uses: actions/checkout@v3
@@ -69,9 +88,8 @@ jobs:
 #         ENGINE: django.db.backends.postgresql_psycopg2
 #         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
-          conn = psycopg2.connect(database="github_actions", user="postgres", password="postgres", host="localhost", port="5432")
           cd crm_project
           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
           export DJANGO_SETTINGS_MODULE=crm_project.settings
           pytest         
-
+#         conn = psycopg2.connect(database="github_actions", user="postgres", password="postgres", host="localhost", port="5432")
