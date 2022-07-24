@@ -61,9 +61,9 @@ jobs:
     - name: Test with pytest
       env:
 #         DEBUG: "0"
-        NAME: github_actions
-        USER: postgres
-        PASSWORD: postgres
+        name: github_actions
+        user: postgres
+        password: postgres
         HOST: localhost
         PORT: 5432
         ENGINE: django.db.backends.postgresql_psycopg2
