@@ -61,13 +61,13 @@ jobs:
     - name: Test with pytest
       env:
 #         DEBUG: "0"
-#         NAME: github_actions
-#         DB_USER: postgres
-#         DB_PASSWORD: postgres
-#         DB_HOST: localhost
-#         PORT: 5432
+        NAME: github_actions
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_HOST: localhost
+        PORT: 5432
 #         DB_ENGINE: django.db.backends.postgresql
-        DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
+#         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
           cd crm_project
           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
