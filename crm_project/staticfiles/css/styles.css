@@ -1,0 +1,136 @@
+body {
+  background-color: lightblue;
+}
+
+/*creation forms, update forms*/
+.form-input {
+    width: 20px;
+    font-size: 16px;
+}
+
+.form-label {
+    display: inline-block;
+    min-width: 150px;
+    vertical-align: top;
+}
+
+.wider-form-label {
+    display: inline-block;
+    min-width: 200px;
+    vertical-align: top;
+}
+
+.narrow-form-label {
+    display: inline-block;
+    min-width: 120px;
+    vertical-align: top;
+}
+
+.update-order-button {
+    margin-top: 5px;
+}
+
+.payment-creation-form-button {
+    width: 80px;
+}
+
+.back-link {
+    background-color: #ddffdd;
+    width: 20%;
+}
+
+.list-view-content {
+    /*display: inline-block;*/
+    float: right;
+    width: 70%;
+    margin-top: 0;
+    padding-left: 35px;
+}
+
+.list-view-table {
+    width: 80%;
+    border: solid black;
+    border-collapse: collapse;
+    padding: 0px;
+}
+
+.list-view-table-th {
+    border: solid black;
+    padding: 5px;
+    background-color: lightgray;
+}
+
+.list-view-table-td {
+    border: solid black;
+    padding: 5px;
+    background-color: whitesmoke;
+}
+
+/*login.html*/
+.login-body{
+  padding-top: 15%;
+  padding-bottom: 20%;
+  display: flex;
+  justify-content: center;
+}
+
+.login-div {
+  display: block;
+  text-align: center;
+  width: 30%;
+  height: 100%;
+  position: relative;
+  border: solid grey;
+}
+
+.login-form {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/*registration.html*/
+.registration-body {
+  padding-top: 15%;
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-bottom: 20%;
+  display: flex;
+  justify-content: center;
+}
+
+.registration-div {
+  width: 40%;
+  height: 100%;
+  padding-top: 10px;
+  display: block;
+  text-align: center;
+  border: solid grey;
+}
+
+/*menu.html*/
+.top_menu {
+    width: 100%;
+    background-color: #ddffdd;
+    padding: 5px;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 25px;
+}
+
+.side-menu {
+    padding: 0;
+    margin: 5px;
+    background-color: #ddffdd;
+    width: 20%;
+    display: inline-block;
+}
+
+.selected {
+    font-weight: bold;
+}
+
+.menu-list {
+    list-style-type: none;
+}
