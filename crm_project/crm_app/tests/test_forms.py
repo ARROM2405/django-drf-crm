@@ -11,12 +11,6 @@ def test_registration_form_fields_list():
 
 
 @pytest.mark.django_db
-def test_registration_form_username_field_label():
-    form = RegistrationForm()
-    assert form['username'].label == 'type in username'
-
-
-@pytest.mark.django_db
 def test_web_creation_form_fields():
     form = WebCreationForm()
     assert list(form.fields.keys()) == ['web_name', 'web_description', 'web_api_key', 'balance']
@@ -31,7 +25,7 @@ def test_lead_creation_form_fields():
 @pytest.mark.django_db
 def test_lead_creation_form_help_text():
     form = LeadCreationForm()
-    assert form['contact_phone'].help_text == 'format 123-123-123'
+    assert form.fields.get('contact_phone').widget.attrs.get('placeholder') == '123-123-123'
 
 
 @pytest.mark.django_db
