@@ -1,26 +1,32 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 {% block top_menu %}
-<div>
-    <div>
-        Welcome {{request.user.username}}, {{request.user.profile.role}}
+    <div class="top_menu">
+        <span class="top_menu_greeting">
+            Welcome {{request.user.username}}, {{request.user.profile.role}}
+        </span>
+        <a href="{% url 'logout' %}"><span clss="top-menu-logout">Logout</span></a>
     </div>
-    <div><a href="{% url 'logout' %}">Logout</a></div>
-</div>
-{% endblock %}
-
-{% block side_menu %}
-{% for menu_point in menu %}
-<ul>
-    <li>
-        {% if menu_point.title == 'Main' %}
-        <a href="{% url 'home_page' 'prod' %}">{{ menu_point.title }}</a>
-        {% else %}
-        <a href="{% url menu_point.url_address %}">{{ menu_point.title }}</a>
-        {% endif %}
-        {% if menu_point.title == selected_menu %}
-         SELECTED
-        {% endif %}
-    </li>
-</ul>
-{% endfor %}
+    {% endblock %}
+    {% block side_menu %}
+    <div class="side-menu">
+    {% for menu_point in menu %}
+    <ul class="menu-list">
+        <li>
+            {% if menu_point.title == selected_menu %}
+                <span class="selected">
+            {% else %}
+                <span class="not_selected">
+            {% endif %}
+            {% if menu_point.title == 'Main' %}
+            <a href="{% url 'home_page' 'prod' %}">{{ menu_point.title }}</a>
+            {% else %}
+            <a href="{% url menu_point.url_address %}">{{ menu_point.title }}</a>
+            {% endif %}
+            </span>
+        </li>
+    </ul>
+    {% endfor %}
+    </div>
 {% endblock %}
 

@@ -947,6 +947,7 @@ class OfferListView(mixins.PermissionRequiredMixin, generic.ListView):
     permission_required = 'crm_app.view_offer'
     model = Offer
     template_name = 'crm_app/offer_list.html'
+    paginate_by = 20
 
     def get_queryset(self):
         return Offer.objects.select_related('web', 'product').all()

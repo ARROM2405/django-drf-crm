@@ -1,4 +1,6 @@
 {% include 'crm_app/menu.html' %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,21 +9,22 @@
     <title>Profile list</title>
 </head>
 <body>
+<div class="list-view-content">
 <h1>Profile list</h1>
-<table border="black solid">
+<table class="list-view-table">
     <tr>
-        <th>User login</th>
-        <th>User role</th>
-        <td>Active</td>
+        <th class="list-view-table-th">User login</th>
+        <th class="list-view-table-th">User role</th>
+        <td class="list-view-table-th">Active</td>
     </tr>
     {% for profile in object_list %}
     <tr>
-        <td>
+        <td class="list-view-table-td">
             <a href="{% url 'profile_detail' profile.pk %}">{{ profile.user.username }}</a>
 
         </td>
-        <td>{{ profile.role }}</td>
-        <td>
+        <td class="list-view-table-td">{{ profile.role }}</td>
+        <td class="list-view-table-td">
             {% if profile.blocked %}
             No
             {% else %}
@@ -32,5 +35,6 @@
     {% endfor %}
 </table>
 {% include 'crm_app/pagination_navigation.html' %}
+</div>
 </body>
 </html>

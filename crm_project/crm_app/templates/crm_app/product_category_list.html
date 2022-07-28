@@ -1,4 +1,6 @@
 {% include 'crm_app/menu.html' %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,6 +9,7 @@
     <title>Product Category List</title>
 </head>
 <body>
+<div class="list_view_content">
 <h1>List of product categories</h1>
 {% if perms.crm_app.add_productcategory %}
 <form method="post">
@@ -15,15 +18,15 @@
 </form>
 {% endif %}
 {% if object_list %}
-    <table border="solid black">
+    <table class="list-view-table">
         <tr>
-            <th>Category name</th>
-            <th>Products number in category</th>
+            <th class="list-view-table-th">Category name</th>
+            <th class="list-view-table-th">Products number in category</th>
         </tr>
         {% for category in object_list %}
         <tr>
-            <td><a href="{% url 'product_category_detail' category.pk %}">{{ category.category_name }}</a></td>
-            <td>{{ category.products_in_category_count }}</td>
+            <td class="list-view-table-td"><a href="{% url 'product_category_detail' category.pk %}">{{ category.category_name }}</a></td>
+            <td class="list-view-table-td">{{ category.products_in_category_count }}</td>
         </tr>
         {% endfor %}
     </table>
@@ -31,5 +34,6 @@
     <h3>No categories yet.</h3>
 {% endif %}
 {% include 'crm_app/pagination_navigation.html' %}
+</div>
 </body>
 </html>

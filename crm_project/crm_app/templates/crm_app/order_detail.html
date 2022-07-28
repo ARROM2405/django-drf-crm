@@ -1,5 +1,7 @@
 {% load crm_app_tags %}
 {% include 'crm_app/menu.html' %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +12,7 @@
 <body>
 {% block top_meny %}
 {% endblock %}
-<a href="{% url 'order_list' %}">Back to order list</a>
+<div class="back-link"><a href="{% url 'order_list' %}">Back to order list</a></div>
 <h1>Order ID: {{ object.pk }}</h1>
 <h3>Status: {{ object.status }}</h3>
 <h3>Lead:
@@ -44,32 +46,32 @@
 <h3>Operator: {{ object.order_operator }}</h3>
 {% endif %}
 <h3>Ordered products: </h3>
-<table border="black solid">
+<table class="list-view-table">
     <tr>
-        <th>Product</th>
-        <th>Quantity ordered</th>
-        <th>Price per unit</th>
-        <th>Total price</th>
+        <th class="list-view-table-th">Product</th>
+        <th class="list-view-table-th">Quantity ordered</th>
+        <th class="list-view-table-th">Price per unit</th>
+        <th class="list-view-table-th">Total price</th>
     </tr>
     {% for ordered_product in object.orderedproduct_set.all %}
     <tr>
-        <td><a href="{% url 'product_detail' ordered_product.product_FK.pk %}">{{ ordered_product.product_FK }}</a></td>
-        <td>{{ ordered_product.ordered_quantity }}</td>
-        <td>{{ ordered_product.ordered_product_price }}</td>
-        <td>{{ ordered_product.total_price }}</td>
+        <td class="list-view-table-td"><a href="{% url 'product_detail' ordered_product.product_FK.pk %}">{{ ordered_product.product_FK }}</a></td>
+        <td class="list-view-table-td">{{ ordered_product.ordered_quantity }}</td>
+        <td class="list-view-table-td">{{ ordered_product.ordered_product_price }}</td>
+        <td class="list-view-table-td">{{ ordered_product.total_price }}</td>
     </tr>
     {% endfor %}
     <tr>
-        <td colspan="3">
-            Order total price
+        <td class="list-view-table-td" colspan="3">
+            <span style="font-weight: bold">Order total price</span>
         </td>
-        <td>{{ object | order_total_price }}</td>
+        <td class="list-view-table-td"><span style="font-weight: bold">{{ object | order_total_price }}</span></td>
     </tr>
 </table>
 {% if perms.crm_app.change_order %}
 <form method="post">
     {% csrf_token %}
-    <button type="submit" name="update_order" value="true">Update order</button>
+    <button class="update-order-button" type="submit" name="update_order" value="true">Update order</button>
 </form>
 {% endif %}
 </body>

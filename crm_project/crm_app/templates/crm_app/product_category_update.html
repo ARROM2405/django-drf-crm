@@ -1,3 +1,5 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,11 +8,15 @@
 </head>
 <body>
 {% include 'crm_app/menu.html' %}
-<a href="{% url 'product_category_detail' object.pk %}">Back to {{ object }} category details</a>
+<div class="back-link"><a href="{% url 'product_category_detail' object.pk %}">Back to {{ object }} category details</a></div>
 <h1>{{ object }} update</h1>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    <div class="form-errors">{{form.non_field_errors}}</div>
+    {% for f in form %}
+    <p><label class="narrow-form-label" for="if.id_for_label">{{f.label}}</label>{{f}}</p>
+    <div class="form-errors">{{f.errors}}</div>
+    {% endfor %}
     <button type="submit" value="update">Update category</button>
 </form>
 </body>

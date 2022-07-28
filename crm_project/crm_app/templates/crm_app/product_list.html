@@ -1,5 +1,6 @@
 {% include 'crm_app/menu.html' %}
-
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +8,7 @@
     <title>Product list</title>
 </head>
 <body>
+<div class="list-view-content">
 <h1>List of products</h1>
 {% if perms.crm_app.add_product %}
 <form method="post">
@@ -15,27 +17,27 @@
 </form>
 {% endif %}
 {% if object_list %}
-<table border="solid black">
+<table class="list-view-table">
     <tr>
-        <th>Product name</th>
-        <th>Product image</th>
-        <th>Quantity available</th>
-        <th>Quantity in delivery</th>
-        <th>Product category</th>
+        <th class="list-view-table-th">Product name</th>
+        <th class="list-view-table-th">Product image</th>
+        <th class="list-view-table-th">Quantity available</th>
+        <th class="list-view-table-th">Quantity in delivery</th>
+        <th class="list-view-table-th">Product category</th>
     </tr>
     {% for product in object_list %}
     <tr>
-        <td><a href="{% url 'product_detail' product.pk %}">{{ product.product_name }}</a></td>
-        <td>
+        <td class="list-view-table-td"><a href="{% url 'product_detail' product.pk %}">{{ product.product_name }}</a></td>
+        <td class="list-view-table-td">
             {% if product.product_image %}
             <img src="{{ product.product_image.url }}" width="100">
             {% else %}
             No image
             {% endif %}
         </td>
-        <td>{{ product.quantity_available }}</td>
-        <td>{{ product.quantity_in_delivery }}</td>
-        <td><a href="{% url 'product_category_detail' product.product_category.product_category_id %}">
+        <td class="list-view-table-td">{{ product.quantity_available }}</td>
+        <td class="list-view-table-td">{{ product.quantity_in_delivery }}</td>
+        <td class="list-view-table-td"><a href="{% url 'product_category_detail' product.product_category.product_category_id %}">
             {{ product.product_category.category_name }}
         </a></td>
     </tr>
@@ -45,5 +47,6 @@
 <h3>No products yet</h3>
 {% endif %}
 {% include 'crm_app/pagination_navigation.html' %}
+</div>
 </body>
 </html>

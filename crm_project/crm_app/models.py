@@ -76,6 +76,9 @@ class Offer(models.Model):
                                      verbose_name='Cost of a click')
     website_url = models.URLField(blank=True, null=True, verbose_name='URL of a landing')
 
+    class Meta:
+        ordering = ['offer_id']
+
     def __str__(self):
         return f'{self.web.web_name}: {self.product.product_name}'
 
@@ -129,6 +132,9 @@ class PaymentsToWeb(models.Model):
 
     def __str__(self):
         return f'{self.web_FK}, {self.payment_amount}'
+
+    class Meta:
+        ordering = ['-payment_date']
 
 
 class Order(models.Model):

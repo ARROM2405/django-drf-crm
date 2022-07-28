@@ -1,6 +1,6 @@
 {% include 'crm_app/menu.html' %}
 {% load static %}
-
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +8,7 @@
     <title>Order list</title>
 </head>
 <body>
+<div class="list-view-content">
 <h1>Order list</h1>
 {% if perms.crm_app.add_order %}
 <form method="post">
@@ -16,25 +17,25 @@
 </form>
 {% endif %}
 {% if object_list %}
-    <table border="black solid">
+    <table class="list-view-table">
         <tr>
-            <td>ID</td>
-            <td>Status</td>
-            <td>Order created</td>
-            <td>Sent date</td>
-            <td>Order operator</td>
+            <th class="list-view-table-th">ID</th>
+            <th class="list-view-table-th">Status</th>
+            <th class="list-view-table-th">Order created</th>
+            <th class="list-view-table-th">Sent date</th>
+            <th class="list-view-table-th">Order operator</th>
         </tr>
     {% for order in object_list %}
         <tr>
-            <td><a href="{% url 'order_detail' order.pk %}">{{ order.pk }}</a></td>
-            <td>{{ order.status }}</td>
-            <td>{{ order.order_created }}</td>
+            <td class="list-view-table-td"><a href="{% url 'order_detail' order.pk %}">{{ order.pk }}</a></td>
+            <td class="list-view-table-td">{{ order.status }}</td>
+            <td class="list-view-table-td">{{ order.order_created }}</td>
             {% if order.sent_date %}
-            <td>{{ order.sent_date }}</td>
+            <td class="list-view-table-td">{{ order.sent_date }}</td>
             {% else %}
-            <td>No data</td>
+            <td class="list-view-table-td">No data</td>
             {% endif %}
-            <td>{{ order.order_operator }}</td>
+            <td class="list-view-table-td">{{ order.order_operator }}</td>
         </tr>
     {% endfor %}
     </table>
@@ -42,5 +43,6 @@
 <h3>No orders created yet</h3>
 {% endif %}
 {% include 'crm_app/pagination_navigation.html' %}
+</div>
 </body>
 </html>

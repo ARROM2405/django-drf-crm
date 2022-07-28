@@ -1,5 +1,6 @@
 {% include 'crm_app/menu.html' %}
-
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,19 +8,20 @@
     <title>Payment list</title>
 </head>
 <body>
+<div class="list-view-content">
 <h1>Payments</h1>
 {% if object_list %}
-<table border="black solid">
+<table class="list-view-table">
     <tr>
-        <td>Payment date</td>
-        <td>Web</td>
-        <td>Amount paid</td>
+        <th class="list-view-table-th">Payment date</th>
+        <th class="list-view-table-th">Web</th>
+        <th class="list-view-table-th">Amount paid</th>
     </tr>
     {% for payment in object_list %}
     <tr>
-        <td>{{ payment.payment_date }}</td>
-        <td><a href="{% url 'web_detail' payment.web_FK.pk %}">{{ payment.web_FK }}</a></td>
-        <td><a href="{% url 'payment_detail' payment.pk %}">{{ payment.payment_amount }}</a></td>
+        <td class="list-view-table-td">{{ payment.payment_date }}</td>
+        <td class="list-view-table-td"><a href="{% url 'web_detail' payment.web_FK.pk %}">{{ payment.web_FK }}</a></td>
+        <td class="list-view-table-td"><a href="{% url 'payment_detail' payment.pk %}">{{ payment.payment_amount }}</a></td>
     </tr>
     {% endfor %}
 </table>
@@ -27,5 +29,6 @@
 <h3>No payments executed yet</h3>
 {% endif %}
 {% include 'crm_app/pagination_navigation.html' %}
+</div>
 </body>
 </html>

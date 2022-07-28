@@ -1,3 +1,5 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"><!DOCTYPE html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,27 +8,27 @@
 </head>
 <body>
 {% include 'crm_app/menu.html' %}
-<a href="{% url 'product_category_list' %}">Back to product category list</a>
+<div class="back-link"><a href="{% url 'product_category_list' %}">Back to product category list</a></div>
 <h1>{{ object.category_name }}</h1>
 {% if object.product_set.all %}
   <h3>List of products in the category</h3>
-  <table border="solid black">
+  <table class="list-view-table">
     <tr>
-      <th>Product image</th>
-      <th>Product name</th>
-      <th>Product quantity available</th>
+      <th class="list-view-table-th">Product image</th>
+      <th class="list-view-table-th">Product name</th>
+      <th class="list-view-table-th">Product quantity available</th>
     </tr>
     {% for product in object.product_set.all %}
       <tr>
-          <td>
+          <td class="list-view-table-td">
               {% if product.product_image %}
               <img src="{{ product.product_image.url }}" width="100">
               {% else %}
               No image
               {% endif %}
           </td>
-          <td><a href="{% url 'product_detail' product.pk %}">{{ product.product_name }}</a></td>
-          <td>{{ product.quantity_available }}</td>
+          <td class="list-view-table-td"><a href="{% url 'product_detail' product.pk %}">{{ product.product_name }}</a></td>
+          <td class="list-view-table-td">{{ product.quantity_available }}</td>
       </tr>
     {% endfor %}
   </table>
@@ -36,7 +38,7 @@
 {% if perms.crm_app.change_productcategory %}
 <form method="post">
     {% csrf_token %}
-    <button type="submit">Update category</button>
+    <button class="update-order-button" type="submit">Update category</button>
 </form>
 {% endif %}
 </body>

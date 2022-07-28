@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,8 +9,13 @@
 <h1>Payment to {{ object }} update</h1>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" value="update">Update payment</button>
+<div class="form-errors">{{form.non_field_errors}}</div>
+
+    {% for f in form %}
+    <p><label class="form-label" for="{{f.id_for_label}}">{{f.label}}</label>{{f}}</p>
+
+    <div class="form-error">{{f.errors}}</div>
+    {% endfor %}    <button type="submit" value="update">Update payment</button>
 </form>
 <form method="post">
     {% csrf_token %}

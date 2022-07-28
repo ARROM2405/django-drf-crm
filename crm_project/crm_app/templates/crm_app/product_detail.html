@@ -1,5 +1,6 @@
 {% include 'crm_app/menu.html' %}
-
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,7 @@
 <body>
 {% block top_menu %}
 {% endblock %}
-<a href="{% url 'product_list' %}">Back to product list</a>
+<div class="back-link"><a href="{% url 'product_list' %}">Back to product list</a></div>
 <h1>{{ object.product_name }}</h1>
 <h3>ID: {{ object.product_id }}</h3>
 <h3>Description</h3>
@@ -27,7 +28,7 @@
 {% if perms.crm_app.change_product %}
 <form method="post">
     {% csrf_token %}
-    <button type="submit" name="update_product">Update product</button>
+    <button style="margin-top: 15px" type="submit" name="update_product">Update product</button>
 </form>
 {% endif %}
 </body>

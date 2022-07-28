@@ -1,5 +1,6 @@
 {% include 'crm_app/menu.html' %}
-
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,6 +9,7 @@
     <title>Web list</title>
 </head>
 <body>
+<div class="list-view-content">
 <h1>Web List</h1>
 {% if perms.crm_app.add_web %}
 <form method="post">
@@ -16,18 +18,19 @@
 </form>
 {% endif %}
 {% if webs %}
-<table border="solid black">
+<table class="list-view-table">
     <tr>
-        <th>Web id</th>
-        <th>Web name</th>
-        <th>Web balance</th>
+        <th class="list-view-table-th">Web id</th>
+        <th class="list-view-table-th">Web name</th>
+        <th class="list-view-table-th">Web balance</th>
+        <th class="list-view-table-th">Make payment</th>
     </tr>
     {% for web in webs %}
     <tr>
-        <td>{{ web.pk }}</td>
-        <td><a href="{% url 'web_detail' web.pk %}">{{ web.web_name }}</a></td>
-        <td>{{ web.balance }}</td>
-        <td>
+        <td class="list-view-table-td">{{ web.pk }}</td>
+        <td class="list-view-table-td"><a href="{% url 'web_detail' web.pk %}">{{ web.web_name }}</a></td>
+        <td class="list-view-table-td">{{ web.balance }}</td>
+        <td class="list-view-table-td">
             <form method="post">
                 {% csrf_token %}
                 <button type="submit" name="web_pk" value="{{web.pk}}">Make payment</button>
@@ -40,5 +43,6 @@
 <h3>No webs added yet.</h3>
 {% endif %}
 {% include 'crm_app/pagination_navigation.html' %}
+</div>
 </body>
 </html>

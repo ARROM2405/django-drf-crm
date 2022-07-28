@@ -12,7 +12,10 @@ class RegistrationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].label = 'type in username'
+        # self.fields['username'].label = 'type in username'
+        self.fields['username'].help_text = None
+        self.fields['password1'].help_text = None
+        self.fields['password2'].help_text = None
 
 
 class WebCreationForm(ModelForm):
@@ -20,11 +23,15 @@ class WebCreationForm(ModelForm):
         model = Web
         fields = ['web_name', 'web_description', 'web_api_key', 'balance']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['web_description'].widget.attrs['rows'] = 2
+
 
 class LeadCreationForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['contact_phone'].help_text = 'format 123-123-123'
+        self.fields['contact_phone'].widget.attrs['placeholder'] = '123-123-123'
 
     class Meta:
         model = Lead
@@ -41,6 +48,7 @@ class ProductCreationForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['product_category'].label = 'Product category'
+        self.fields['product_description'].widget.attrs['rows'] = 4
 
     class Meta:
         model = Product

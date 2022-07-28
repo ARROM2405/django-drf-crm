@@ -1,4 +1,5 @@
-
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +9,7 @@
 </head>
 <body>
 {% include 'crm_app/menu.html' %}
-<a href="{% url 'payment_list' %}">Back to payment list</a>
+<div class="back-link"><a href="{% url 'payment_list' %}">Back to payment list</a></div>
 <h1>Payment ID: {{ object.pk }}</h1>
 <h3>Paid to: <a href="{% url 'web_detail' object.web_FK.pk %}">{{ object.web_FK }}</a></h3>
 <h3>Paid at: {{ object.payment_date }}</h3>

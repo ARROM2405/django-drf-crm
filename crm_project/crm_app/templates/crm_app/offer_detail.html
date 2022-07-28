@@ -1,5 +1,6 @@
 {% include 'crm_app/menu.html' %}
-
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,7 @@
 <body>
 {% block top_menu %}
 {% endblock %}
-<a href="{% url 'offer_list' %}">Back to offer list</a>
+<div class="back-link"><a href="{% url 'offer_list' %}">Back to offer list</a></div>
 <h1>Offer {{ object.offer_id }}</h1>
 <h3>Web: <a href="{% url 'web_detail' object.web.pk %}">{{ object.web.web_name }}</a></h3>
 <h3>Product: <a href="{% url 'product_detail' object.product.pk %}">{{ object.product.product_name }}</a></h3>

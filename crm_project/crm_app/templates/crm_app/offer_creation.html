@@ -1,3 +1,7 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,12 +10,24 @@
 </head>
 <body>
 {% include 'crm_app/menu.html' %}
-<a href="{% url 'offer_list' %}">Back to offer list</a>
+<div class="back-link"><a href="{% url 'offer_list' %}">Back to offer list</a></div>
 <h1>Offer creation form</h1>
-<form method="post">
+<!--<form class="creation_form" method="post">-->
+<!--    {% csrf_token %}-->
+<!--    {{ form.as_p }}-->
+<!--    <button type="submit">Create new offer</button>-->
+<!--</form>-->
+<form class="create-form" method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Create new offer</button>
+    <div class="form-errors">{{form.non_field_errors}}</div>
+
+    {% for f in form %}
+    <p><label class="form-label" for="{{f.id_for_label}}">{{f.label}}</label>{{f}}</p>
+
+    <div class="form-error">{{f.errors}}</div>
+    {% endfor %}
+
+    <button type="submit">Create offer</button>
 </form>
 </body>
 </html>

@@ -1,3 +1,6 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,11 +9,15 @@
 </head>
 <body>
 {% include 'crm_app/menu.html' %}
-<a href="{% url 'web_list' %}">Back to web list</a>
+<div class="back-link"><a href="{% url 'web_list' %}">Back to web list</a></div>
 <h1>Web creation</h1>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    <div class="wider-form-errors">{{form.non_field_errors}}</div>
+    {% for f in form %}
+    <p><label class="form-label" for="if.id_for_label">{{f.label}}</label>{{f}}</p>
+    <div class="form-errors">{{f.errors}}</div>
+    {% endfor %}
     <button type="submit">Create new Web</button>
 </form>
 </body>

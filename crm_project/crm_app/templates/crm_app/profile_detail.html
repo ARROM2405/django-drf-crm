@@ -1,3 +1,6 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +9,7 @@
 </head>
 <body>
 {% include 'crm_app/menu.html' %}
-<a href="{% url 'profile_list' %}">Back to user list</a>
+<div class="back-link"><a href="{% url 'profile_list' %}">Back to user list</a></div>
 <h1>Profile details</h1>
 <h3>Login: {{ object.user.username }}</h3>
 <h3>Role: {{ object.role }}</h3>
