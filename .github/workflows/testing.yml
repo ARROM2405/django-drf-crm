@@ -88,7 +88,6 @@ jobs:
 #         ENGINE: django.db.backends.postgresql_psycopg2
 #         DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
       run: |
-          pipenv install psycopg2
           python conn.py
           cd crm_project
           export PYTHONPATH=${PYTHONPATH}:${HOME}/crm_project
