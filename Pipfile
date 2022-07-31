@@ -10,6 +10,8 @@ djangorestframework = "*"
 psycopg2 = "*"
 python-dotenv = "*"
 faker = "*"
+markdown = "*"
+django-filter = "*"
 
 [dev-packages]
 

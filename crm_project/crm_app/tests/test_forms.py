@@ -1,5 +1,3 @@
-import pytest
-
 from crm_app.forms import *
 from fixtures import *
 

@@ -1,7 +1,6 @@
 import pprint
 from unittest import mock
 
-import pytest
 from django.core.files import File
 from django.shortcuts import reverse
 from fixtures import *
