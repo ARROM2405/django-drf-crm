@@ -123,7 +123,7 @@ class HomePageView(mixins.LoginRequiredMixin, generic.View):
                     user_total_sales += ordered_product.total_price()
                 if user_total_sales > 0:
                     opers.append((float('{:2f}'.format(user_total_sales)), user))
-            context['statistics'] =sorted(opers, reverse=True)
+            context['statistics'] = sorted(opers, reverse=True)
             context['statistic_units'] = 'oper'
         elif statistics_by == 'web':
             webs_stats = []
